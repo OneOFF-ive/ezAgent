@@ -4,11 +4,12 @@
   "description": "Build a simple AI agent from scratch.",
   "main": "./src/index.js",
   "scripts": {
+    "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"    
+    "format:check": "prettier . --check"
   },
   "author": "",
   "license": "ISC",
@@ -18,5 +19,9 @@
     "eslint": "^10.2.1",
     "globals": "^17.5.0",
     "prettier": "^3.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "undici": "^8.1.0"
   }
 }
