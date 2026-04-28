@@ -11,6 +11,36 @@
 - 多轮对话状态管理
 - Agent 运行机制与架构设计
 
+## 快速开始
+
+### 1. 安装依赖
+
+```bash
+npm install
+```
+
+### 2. 初始化环境变量
+
+复制模板文件并按你的模型服务商填写配置：
+
+```bash
+cp .env.example .env
+```
+
+当前 LLM 接入层支持注册多个模型，并通过 `LLM_ACTIVE_MODEL` 选择当前使用的模型。
+
+### 3. 本地开发
+
+```bash
+npm run dev
+```
+
+### 4. 运行检查
+
+```bash
+npm run validate
+```
+
 ## 项目目标
 
 ### 学习目标
@@ -54,6 +84,10 @@
 - 环境变量加载正常
 - 目录结构清晰
 - 文档可以指导下一阶段开发
+
+当前状态：
+
+- 已完成
 
 ### Phase 1: 最小 Agent 闭环
 
@@ -180,6 +214,43 @@ ezAgent/
 └── docs/
 ```
 
+## 当前目录结构
+
+当前项目已经落地的目录结构如下：
+
+```text
+ezAgent/
+├── README.md
+├── AGENT.md
+├── .env
+├── .env.example
+├── package.json
+├── src/
+│   ├── index.js
+│   ├── agent/
+│   │   └── README.md
+│   ├── config/
+│   │   └── env.js
+│   ├── llm/
+│   │   ├── README.md
+│   │   ├── client.js
+│   │   └── protocols.js
+│   ├── tools/
+│   │   └── tools.js
+│   └── utils/
+│       └── utils.js
+├── tests/
+│   └── README.md
+└── docs/
+    └── README.md
+```
+
+说明：
+
+- `src/llm/` 已经完成第一版接入层抽象
+- `src/agent/`、`tests/`、`docs/` 当前处于骨架占位阶段
+- `src/tools/`、`src/utils/` 已建立目录边界，等待后续逐步细化
+
 ## 阶段性交付目标
 
 ### 第 1 周
@@ -216,6 +287,44 @@ ezAgent/
 4. 打通最小对话闭环
 5. 再开始做 memory 和 tools
 
+## 开发脚本
+
+当前可用脚本：
+
+- `npm start`
+  运行当前入口文件
+- `npm run dev`
+  以 watch 模式运行入口文件，适合本地开发
+- `npm run lint`
+  执行 ESLint 检查
+- `npm run lint:fix`
+  自动修复可修复的 ESLint 问题
+- `npm run format`
+  使用 Prettier 格式化代码
+- `npm run format:check`
+  检查代码格式是否符合约定
+- `npm run check`
+  运行 `lint + format:check`
+- `npm run validate`
+  作为当前阶段的一键自检入口
+- `npm test`
+  当前为占位脚本，测试体系将在后续阶段补充
+
+## Phase 0 验收标准
+
+当下面这些条件都满足时，`Phase 0` 可以认为完整结束：
+
+1. 项目骨架和基础目录已经建立
+2. `package.json`、ESLint、Prettier、`.gitignore` 已配置完成
+3. `.env.example` 可以指导新环境初始化
+4. `npm install`、`npm run lint`、`npm run format:check`、`npm run validate` 可以执行
+5. 项目入口 `src/index.js` 可以正常启动到模型调用阶段
+6. 根 README、Agent 文档和 LLM 子目录文档能说明当前结构和下一步方向
+
+结论：
+
+- 截至当前版本，`Phase 0` 已完成
+
 ## 成功标准
 
 如果这个项目顺利推进，最终应该具备这些特征：
@@ -227,11 +336,9 @@ ezAgent/
 
 ## 下一步建议
 
-最适合紧接着做的事情：
+`Phase 0` 收口后，下一步最适合进入：
 
-1. 初始化 `package.json`
-2. 创建 `src/index.js`
-3. 增加 `.env.example`
-4. 接入第一个模型调用客户端
-
-如果你愿意，我下一步可以继续直接帮你把 Node.js 项目骨架也一起生成出来。
+1. 把 `src/index.js` 从固定消息 demo 升级成可交互 CLI
+2. 抽出消息构造逻辑，准备进入多轮对话
+3. 设计 `memory` 层的数据结构
+4. 再开始推进 `Phase 1` 到 `Phase 2`

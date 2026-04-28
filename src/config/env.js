@@ -12,8 +12,7 @@ function requiredEnv(name, value, options = {}) {
     const normalized = value.trim();
 
     if (!normalized) {
-      const sourceHint =
-        sources.length > 0 ? ` Expected one of: ${sources.join(', ')}.` : '';
+      const sourceHint = sources.length > 0 ? ` Expected one of: ${sources.join(', ')}.` : '';
       throw new Error(`Environment variable ${name} is required but is empty.${sourceHint}`);
     }
 
@@ -21,8 +20,7 @@ function requiredEnv(name, value, options = {}) {
   }
 
   if (value === undefined || value === null) {
-    const sourceHint =
-      sources.length > 0 ? ` Expected one of: ${sources.join(', ')}.` : '';
+    const sourceHint = sources.length > 0 ? ` Expected one of: ${sources.join(', ')}.` : '';
     throw new Error(`Environment variable ${name} is required but not defined.${sourceHint}`);
   }
 
@@ -52,7 +50,10 @@ function parseCsv(value) {
 function normalizeModelIdForEnv(modelId) {
   // 用户可以自由定义模型别名，但环境变量名需要更稳定的格式。
   // 这里把别名统一转成适合拼接环境变量名的大写下划线形式。
-  return modelId.replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toUpperCase();
+  return modelId
+    .replace(/[^a-zA-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toUpperCase();
 }
 
 function modelEnvName(modelId, suffix) {
@@ -149,7 +150,9 @@ function resolveLlmConfig() {
     { sources: ['LLM_ACTIVE_MODEL'] },
   );
 
-  const models = Object.fromEntries(modelIds.map((modelId) => [modelId, resolveModelConfig(modelId)]));
+  const models = Object.fromEntries(
+    modelIds.map((modelId) => [modelId, resolveModelConfig(modelId)]),
+  );
   const activeModel = models[activeModelId];
 
   if (!activeModel) {

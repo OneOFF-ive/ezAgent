@@ -81,7 +81,9 @@ function buildApiError(response, errorPayload) {
   }
 
   if (response.status === 429 && code === 'insufficient_quota') {
-    return new Error(`LLM quota exceeded for "${label}": 当前账户额度不足，请检查 billing 和 usage。`);
+    return new Error(
+      `LLM quota exceeded for "${label}": 当前账户额度不足，请检查 billing 和 usage。`,
+    );
   }
 
   if (response.status === 429) {
