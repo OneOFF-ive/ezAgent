@@ -6,7 +6,7 @@
 
 - 不再内置固定供应商预设
 - 只保留三种接口协议类型
-- 支持在配置文件里声明多个模型
+- 支持在用户配置文件里声明多个模型
 - 运行时只选择其中一个激活模型来调用
 
 ## 当前支持的协议
@@ -40,111 +40,143 @@
 
 ### `client.js`
 
-统一请求入口。
+统一请求主流程入口。
 
 职责：
 
-- 读取当前激活模型配置
-- 组装完整请求地址
+- 调用请求配置模块生成请求参数
 - 发起 HTTP 请求
-- 解析错误
-- 返回统一文本结果
+- 调用错误模块处理失败响应
+- 调用协议模块提取统一文本结果
 
 这里不再关心“这是哪家模型”，只关心：
 
 - 当前激活模型是什么
 - 当前激活模型走哪种协议
 
+### `request-config.js`
+
+请求配置层。
+
+职责：
+
+- 解析目标模型
+- 拼接完整请求地址
+- 生成 `fetch` 所需参数
+- 处理代理 dispatcher
+
+### `errors.js`
+
+错误处理层。
+
+职责：
+
+- 解析接口错误响应
+- 兼容不同供应商的错误结构
+- 构造统一错误对象
+
 ## 配置方式
 
-LLM 配置在项目根目录的 `.env` 中完成。
+配置分成两层：
 
-### 1. 声明有哪些模型
+- `.env`
+  保存系统级配置，例如运行环境、代理、全局默认参数、用户配置文件路径
+- `user-config.json`
+  保存用户模型配置，例如默认激活模型、自定义模型列表、每个模型的协议和地址
 
-```env
-LLM_MODELS=my_openai,my_claude,my_code
-```
+默认情况下，项目会读取根目录：
 
-### 2. 选择当前激活模型
+- `.env`
+- `user-config.json`
 
-```env
-LLM_ACTIVE_MODEL=my_code
-```
+### `.env`
 
-### 3. 为每个模型分别配置参数
-
-每个模型的配置格式是：
+最小系统级配置示例：
 
 ```env
-LLM_MODEL_<MODEL_ID>_PROTOCOL=
-LLM_MODEL_<MODEL_ID>_BASE_URL=
-LLM_MODEL_<MODEL_ID>_API_KEY=
+NODE_ENV=development
+PORT=3000
+LOG_LEVEL=debug
+HTTP_PROXY_URL=http://127.0.0.1:7890
+USER_CONFIG_PATH=./user-config.json
+LLM_TEMPERATURE=0.7
+LLM_MAX_TOKENS=1024
+ANTHROPIC_VERSION=2023-06-01
 ```
 
-可选项：
+### `user-config.json`
 
-```env
-LLM_MODEL_<MODEL_ID>_MODEL=
-LLM_MODEL_<MODEL_ID>_TEMPERATURE=
-LLM_MODEL_<MODEL_ID>_MAX_TOKENS=
-LLM_MODEL_<MODEL_ID>_ANTHROPIC_VERSION=
+用户模型配置示例：
+
+```json
+{
+  "activeModelId": "my_code",
+  "models": {
+    "my_openai": {
+      "protocol": "openai-responses",
+      "baseUrl": "https://api.openai.com/v1",
+      "apiKey": "your_openai_key",
+      "model": "gpt-4o-mini"
+    },
+    "my_code": {
+      "protocol": "openai-completions",
+      "baseUrl": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "apiKey": "your_volcengine_key",
+      "model": "ark-code-latest"
+    },
+    "my_claude": {
+      "protocol": "anthropic-messages",
+      "baseUrl": "https://api.anthropic.com/v1",
+      "apiKey": "your_anthropic_key",
+      "model": "claude-sonnet-4-20250514",
+      "anthropicVersion": "2023-06-01",
+      "maxTokens": 1024
+    }
+  }
+}
 ```
 
-其中：
+字段说明：
 
-- `PROTOCOL`、`BASE_URL`、`API_KEY` 是必填
-- `MODEL` 是可选
-  如果不写，默认直接使用你注册时的模型名称 `MODEL_ID`
-
-代码会把 `MODEL_ID` 转成大写，并把非字母数字字符替换成下划线。
-
-例如：
-
-- `openai-main` -> `LLM_MODEL_OPENAI_MAIN_*`
-- `claude.main` -> `LLM_MODEL_CLAUDE_MAIN_*`
-
-## 示例
-
-```env
-LLM_MODELS=my_openai,my_code,my_claude
-LLM_ACTIVE_MODEL=my_code
-
-LLM_MODEL_MY_OPENAI_PROTOCOL=openai-responses
-LLM_MODEL_MY_OPENAI_BASE_URL=https://api.openai.com/v1
-LLM_MODEL_MY_OPENAI_API_KEY=your_openai_key
-LLM_MODEL_MY_OPENAI_MODEL=gpt-4o-mini
-
-LLM_MODEL_MY_CODE_PROTOCOL=openai-completions
-LLM_MODEL_MY_CODE_BASE_URL=https://ark.cn-beijing.volces.com/api/coding/v3
-LLM_MODEL_MY_CODE_API_KEY=your_volcengine_key
-LLM_MODEL_MY_CODE_MODEL=ark-code-latest
-
-LLM_MODEL_MY_CLAUDE_PROTOCOL=anthropic-messages
-LLM_MODEL_MY_CLAUDE_BASE_URL=https://api.anthropic.com/v1
-LLM_MODEL_MY_CLAUDE_API_KEY=your_anthropic_key
-LLM_MODEL_MY_CLAUDE_MODEL=claude-sonnet-4-20250514
-LLM_MODEL_MY_CLAUDE_ANTHROPIC_VERSION=2023-06-01
-LLM_MODEL_MY_CLAUDE_MAX_TOKENS=1024
-```
+- `activeModelId`
+  默认激活模型
+- `models`
+  用户自定义模型注册表
+- `models.<id>.protocol`
+  必填，必须是三种协议之一
+- `models.<id>.baseUrl`
+  必填
+- `models.<id>.apiKey`
+  必填
+- `models.<id>.model`
+  可选；不写时默认使用模型别名
+- `models.<id>.temperature`
+  可选
+- `models.<id>.maxTokens`
+  可选
+- `models.<id>.anthropicVersion`
+  Anthropic 协议可选覆盖
 
 ## 当前调用链路
 
 整体流程如下：
 
 1. `src/config/env.js` 读取 `.env`
-2. 解析 `LLM_MODELS`
-3. 为每个模型生成独立配置
-4. 根据 `LLM_ACTIVE_MODEL` 选出当前激活模型
-5. `client.js` 使用激活模型的协议和参数发起请求
-6. `protocols.js` 负责协议差异处理
-7. 返回统一纯文本结果
+2. 根据 `.env` 里的 `USER_CONFIG_PATH` 读取 `user-config.json`
+3. 解析 `models` 注册表
+4. 根据 `activeModelId` 选出当前激活模型
+5. `request-config.js` 生成请求 URL 和 `fetch` 参数
+6. `client.js` 发起请求
+7. `errors.js` 负责失败响应解析
+8. `protocols.js` 负责协议差异处理和文本提取
+9. 返回统一纯文本结果
 
 ## 扩展建议
 
 以后新增模型时，不需要再改代码层结构，优先只做配置：
 
-1. 自定义一个模型别名并加进 `LLM_MODELS`
-2. 写对应的 `LLM_MODEL_<ID>_*` 配置
-3. 切换 `LLM_ACTIVE_MODEL`
+1. 在 `user-config.json` 的 `models` 里新增一个模型别名
+2. 写该模型的 `protocol / baseUrl / apiKey`
+3. 按需要修改 `activeModelId`
 
 只有在遇到一种全新的接口协议时，才需要扩展 `protocols.js`。

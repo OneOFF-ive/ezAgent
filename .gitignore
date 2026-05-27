@@ -5,6 +5,7 @@ node_modules/
 .env
 .env.*
 !.env.example
+user-config.json
 src/.env
 src/.env.*
 !src/.env.example
