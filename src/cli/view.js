@@ -6,16 +6,20 @@ export function formatModelLabel(model) {
   return `${model.id} -> ${model.model} (${model.protocol})`;
 }
 
-export function printWelcome(model, userConfigPath) {
-  console.log('ezAgent CLI 已启动');
+export function printWelcome(model, userConfigPath, agent) {
+  console.log(`${agent.name} CLI 已启动`);
+  console.log(`当前 Agent: ${agent.name}`);
+  console.log(`Agent 配置文件: ${agent.configPath}`);
+  console.log(`Soul 来源: ${agent.promptSource}`);
   console.log(`当前模型: ${formatModelLabel(model)}`);
   console.log(`用户配置文件: ${userConfigPath}`);
-  console.log('可用命令: /help, /clear, /model, /models, /switch <id>, exit, quit\n');
+  console.log('可用命令: /help, /agent, /clear, /model, /models, /switch <id>, exit, quit\n');
 }
 
 export function printHelp() {
   console.log('命令说明:');
   console.log('- 直接输入问题即可与当前模型对话');
+  console.log('- /agent: 查看当前 Agent 和 Soul 配置');
   console.log('- /clear: 清空当前会话上下文');
   console.log('- /model: 查看当前模型');
   console.log('- /models: 查看已注册模型');
@@ -36,6 +40,18 @@ export function printRegisteredModels(currentModelId, getModelById) {
     const model = getModelById(modelId);
     const marker = modelId === currentModelId ? '*' : '-';
     console.log(`${marker} ${formatModelLabel(model)}`);
+  }
+
+  console.log('');
+}
+
+export function printCurrentAgent(agent) {
+  console.log(`当前 Agent: ${agent.name}`);
+  console.log(`Agent 配置文件: ${agent.configPath}`);
+  console.log(`Soul 来源: ${agent.promptSource}`);
+
+  if (agent.description) {
+    console.log(`说明: ${agent.description}`);
   }
 
   console.log('');

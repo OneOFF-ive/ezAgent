@@ -24,21 +24,7 @@
 
 ## 当前建议
 
-### 1. 抽出系统提示词
-
-优先级：高
-
-当前 `SYSTEM_PROMPT` 仍在 `src/cli/state.js` 中。建议移动到 Agent 层，例如：
-
-- `src/agent/prompts.js`
-
-原因：
-
-- CLI 不应该拥有 Agent 的行为设定。
-- 后续做 memory、tool、agent loop 时，可以统一复用系统提示词。
-- 这一步能让 `src/agent/` 从占位目录变成真正的业务边界。
-
-### 2. 建立最小 memory 模块
+### 1. 建立最小 memory 模块
 
 优先级：高
 
@@ -58,7 +44,7 @@
 - 当前上下文逻辑在 CLI state 里。
 - Phase 2 的核心是 memory，提前抽出能让后续裁剪、持久化更自然。
 
-### 3. 增加最小测试
+### 2. 增加最小测试
 
 优先级：中
 
@@ -75,7 +61,7 @@
 - 这些模块已经承担了关键边界。
 - 未来继续重构时，测试能防止配置解析和协议适配回退。
 
-### 4. 优化 LLM 请求稳定性
+### 3. 优化 LLM 请求稳定性
 
 优先级：中
 
@@ -91,13 +77,37 @@
 - 当前 LLM 接入层结构已经比较清楚。
 - 下一步增强可靠性会比继续拆文件更有收益。
 
-### 5. 更新 Phase 1 状态
+### 4. 更新 Phase 1 状态
 
 优先级：中
 
-建议在完成 prompt 抽离和 memory 雏形后，更新 [learning-plan.md](/root/ezAgent/docs/learning-plan.md)。
+建议在完成 memory 雏形后，更新 [learning-plan.md](/root/ezAgent/docs/learning-plan.md)。
 
 可以将 Phase 1 标记为：
 
 - 核心闭环已完成
 - 剩余测试、错误体验和 Phase 2 过渡工作
+
+## 最近完成
+
+### 抽出系统提示词
+
+状态：已完成
+
+完成内容：
+
+- 新增 `src/agent/prompts.js`
+- 从 `src/cli/state.js` 移除硬编码系统提示词
+- 由 Agent 层统一提供初始 system message
+
+### 支持 Agent / Soul 自定义 prompt
+
+状态：已完成
+
+完成内容：
+
+- 新增 `src/config/agent-config.js`
+- 新增 `agent.example.json` 和 `soul.example.md`
+- 支持通过 `agent.json` 指定 `soulPath`
+- 支持通过 `soul.md` 自定义系统提示词
+- CLI 新增 `/agent` 查看当前 Agent 和 Soul 来源

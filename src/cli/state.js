@@ -1,14 +1,14 @@
 import { env } from '../config/env.js';
 import { updateActiveModelId } from '../config/user-config.js';
-
-const SYSTEM_PROMPT = 'You are a helpful assistant.';
+import { createSystemMessage } from '../agent/prompts.js';
 
 export function createInitialMessages() {
-  return [{ role: 'system', content: SYSTEM_PROMPT }];
+  return [createSystemMessage()];
 }
 
 export function createCliState() {
   return {
+    agent: env.agent,
     messages: createInitialMessages(),
     currentModelId: env.llm.activeModelId,
   };

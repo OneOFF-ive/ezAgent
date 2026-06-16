@@ -34,10 +34,12 @@
 
 - 读取系统级配置
 - 读取用户模型配置
+- 读取 Agent 与 Soul 配置
 - 解析激活模型和模型注册表
 
 当前文件：
 
+- `src/config/agent-config.js`
 - `src/config/env.js`
 - `src/config/llm-config.js`
 - `src/config/user-config.js`
@@ -68,12 +70,13 @@
 
 当前状态：
 
-- 目录已建立
-- 业务能力尚未正式实现
+- 已抽出基础系统提示词
+- 支持从 `agent.json` / `soul.md` 加载用户自定义 prompt
+- memory、core、loop 尚未正式实现
 
-预留目录：
+当前文件：
 
-- `src/agent/`
+- `src/agent/prompts.js`
 
 ### 5. Tool Layer
 
@@ -121,6 +124,12 @@
 - 支持多个模型注册
 - 支持默认激活模型
 - 支持切换模型后持久化激活模型
+
+### Agent 层
+
+- 已抽出默认系统提示词
+- 已提供初始 system message 创建入口
+- 支持用户通过 `agent.json` / `soul.md` 自定义 prompt
 
 ## 推荐开发原则
 
@@ -226,7 +235,8 @@
 ## 当前约束
 
 - 目前核心能力仍聚焦在 CLI 与 LLM 接入层
-- `src/agent/`、`src/tools/` 仍是后续阶段能力
+- `src/agent/` 目前已有 prompts 和自定义 prompt 加载能力，memory / core / loop 仍是后续阶段能力
+- `src/tools/` 仍是后续阶段能力
 - 还没有正式引入测试用例
 - 还没有实现 memory 裁剪与持久化
 - 还没有实现工具调用和任务循环

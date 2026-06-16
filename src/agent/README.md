@@ -1,8 +1,20 @@
 # Agent 层说明
 
-这个目录预留给后续 Agent 核心能力实现。
+这个目录用于承载 Agent 核心能力。
 
-当前阶段属于 `Phase 0`，这里只建立目录边界，不提前堆业务逻辑。
+当前阶段已经开始从 CLI 层抽离 Agent 相关职责。
+
+当前文件：
+
+- `prompts.js`
+  负责提供默认系统提示词和初始 system message。
+
+相关用户配置：
+
+- `agent.json`
+  定义 Agent 名称、描述和 `soulPath`。
+- `soul.md`
+  存放用户自定义系统提示词。
 
 后续计划放置的能力包括：
 
@@ -15,5 +27,6 @@
 
 当前状态：
 
-- 目录已建立
-- 等待 `Phase 1 / Phase 2 / Phase 3` 逐步落地
+- `prompts.js` 已建立
+- 支持从 `agent.json` / `soul.md` 加载用户自定义 prompt
+- `memory.js`、`core.js`、`loop.js` 等待后续阶段落地

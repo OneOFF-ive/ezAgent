@@ -37,6 +37,8 @@ npm install
 ```bash
 cp .env.example .env
 cp user-config.example.json user-config.json
+cp agent.example.json agent.json
+cp soul.example.md soul.md
 ```
 
 配置约定：
@@ -45,6 +47,10 @@ cp user-config.example.json user-config.json
   保存系统级配置，例如运行环境、代理、默认参数、用户配置文件路径
 - `user-config.json`
   保存用户模型配置，例如默认模型、多个自定义模型
+- `agent.json`
+  保存 Agent 基础信息和使用的 soul 文件路径
+- `soul.md`
+  保存用户自定义系统提示词
 
 ### 3. 启动 CLI
 
@@ -66,6 +72,8 @@ ezAgent/
 ├── AGENTS.md
 ├── .env
 ├── .env.example
+├── agent.example.json
+├── soul.example.md
 ├── user-config.json
 ├── user-config.example.json
 ├── docs/
@@ -75,12 +83,14 @@ ezAgent/
 ├── src/
 │   ├── index.js
 │   ├── agent/
-│   │   └── README.md
+│   │   ├── README.md
+│   │   └── prompts.js
 │   ├── cli/
 │   │   ├── commands.js
 │   │   ├── state.js
 │   │   └── view.js
 │   ├── config/
+│   │   ├── agent-config.js
 │   │   ├── env.js
 │   │   ├── llm-config.js
 │   │   └── user-config.js
@@ -110,6 +120,10 @@ ezAgent/
   系统级配置
 - `.env.example`
   系统级配置模板
+- `agent.example.json`
+  Agent 配置模板
+- `soul.example.md`
+  Soul 提示词模板
 - `user-config.json`
   用户级模型配置
 - `user-config.example.json`
@@ -132,6 +146,8 @@ ezAgent/
 
 ### `src/config/`
 
+- `agent-config.js`
+  读取 Agent 配置和 Soul 提示词
 - `env.js`
   加载 `.env` 并导出系统配置
 - `llm-config.js`
@@ -155,7 +171,7 @@ ezAgent/
 ### 其他目录
 
 - `src/agent/`
-  预留给 Agent 核心层
+  Agent 核心层，目前包含系统提示词模块
 - `src/tools/`
   预留给工具系统
 - `src/utils/`

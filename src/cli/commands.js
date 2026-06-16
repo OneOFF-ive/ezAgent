@@ -1,5 +1,6 @@
 import { clearMessages, getCurrentModel, getModelById, switchModel } from './state.js';
 import {
+  printCurrentAgent,
   printCurrentModel,
   printHelp,
   printMessagesCleared,
@@ -11,6 +12,11 @@ import {
 export function handleCommand(trimmed, state) {
   if (trimmed === '/help') {
     printHelp();
+    return true;
+  }
+
+  if (trimmed === '/agent') {
+    printCurrentAgent(state.agent);
     return true;
   }
 

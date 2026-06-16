@@ -1,0 +1,5 @@
+{
+  "name": "ezAgent",
+  "description": "A learning-focused Node.js AI agent.",
+  "soulPath": "./soul.md"
+}

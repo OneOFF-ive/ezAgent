@@ -6,6 +6,8 @@ node_modules/
 .env.*
 !.env.example
 user-config.json
+agent.json
+soul.md
 src/.env
 src/.env.*
 !src/.env.example

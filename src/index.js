@@ -17,7 +17,7 @@ async function main() {
   const rl = readline.createInterface({ input, output });
   const state = createCliState();
 
-  printWelcome(getCurrentModel(state), getUserConfigFilePath(env.userConfigPath));
+  printWelcome(getCurrentModel(state), getUserConfigFilePath(env.userConfigPath), state.agent);
 
   while (true) {
     const question = await rl.question('You: ');
