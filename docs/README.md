@@ -19,6 +19,8 @@
 
 - [learning-plan.md](/root/ezAgent/docs/learning-plan.md)
   项目的学习目标、阶段规划、阶段待办和验收标准。
+- [next-actions.md](/root/ezAgent/docs/next-actions.md)
+  当前最值得优先处理的下一步建议。
 
 ## 推荐放置内容
 
@@ -38,6 +40,7 @@
 - 当某个主题已经超出 README 的“快速理解”范围时，优先单独建文档。
 - 文档文件名尽量直接表达主题，例如：
   - `learning-plan.md`
+  - `next-actions.md`
   - `tool-system-notes.md`
   - `memory-design.md`
   - `phase-2-review.md`

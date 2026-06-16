@@ -63,14 +63,15 @@ npm run validate
 ```text
 ezAgent/
 ├── README.md
-├── AGENT.md
+├── AGENTS.md
 ├── .env
 ├── .env.example
 ├── user-config.json
 ├── user-config.example.json
 ├── docs/
 │   ├── README.md
-│   └── learning-plan.md
+│   ├── learning-plan.md
+│   └── next-actions.md
 ├── src/
 │   ├── index.js
 │   ├── agent/
@@ -103,7 +104,7 @@ ezAgent/
 
 - `README.md`
   项目总说明、使用方式、目录概览
-- `AGENT.md`
+- `AGENTS.md`
   Agent 架构说明、模块边界、后续实现约束
 - `.env`
   系统级配置
@@ -189,7 +190,9 @@ ezAgent/
   [docs/README.md](/root/ezAgent/docs/README.md)
 - 学习计划与阶段规划：
   [docs/learning-plan.md](/root/ezAgent/docs/learning-plan.md)
+- 下一步建议：
+  [docs/next-actions.md](/root/ezAgent/docs/next-actions.md)
 - Agent 架构说明：
-  [AGENT.md](/root/ezAgent/AGENT.md)
+  [AGENTS.md](/root/ezAgent/AGENTS.md)
 - LLM 接入层说明：
   [src/llm/README.md](/root/ezAgent/src/llm/README.md)
