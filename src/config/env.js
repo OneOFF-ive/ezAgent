@@ -9,6 +9,16 @@ function toNumber(value, fallback) {
   return Number.isNaN(num) ? fallback : num;
 }
 
+function toPositiveInteger(value, fallback, minimum = 1) {
+  const num = toNumber(value, fallback);
+
+  if (!Number.isFinite(num) || num < 1) {
+    return fallback;
+  }
+
+  return Math.max(Math.floor(num), minimum);
+}
+
 const userConfigPath = process.env.USER_CONFIG_PATH || './user-config.json';
 const agentConfigPath = process.env.AGENT_CONFIG_PATH || './agent.json';
 const agent = resolveAgentConfig(agentConfigPath);
@@ -28,5 +38,8 @@ export const env = {
   userConfigPath,
   agentConfigPath,
   agent,
+  memory: {
+    maxMessages: toPositiveInteger(process.env.MEMORY_MAX_MESSAGES, 20, 2),
+  },
   llm,
 };

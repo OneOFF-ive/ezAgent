@@ -105,6 +105,8 @@
 - 支持连续对话
 - 支持多轮上下文
 - 支持 `/help`
+- 支持 `/agent`
+- 支持 `/memory`
 - 支持 `/model`
 - 支持 `/models`
 - 支持 `/switch <id>`
@@ -133,6 +135,7 @@
 - 已提供初始 system message 创建入口
 - 支持用户通过 `agent.json` / `soul.md` 自定义 prompt
 - 已建立短期消息 memory 模块
+- 已支持 memory 最大消息数裁剪
 
 ## 推荐开发原则
 
@@ -241,7 +244,7 @@
 - `src/agent/` 目前已有 prompts、memory 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
 - `src/tools/` 仍是后续阶段能力
 - 还没有正式引入测试用例
-- 还没有实现 memory 裁剪与持久化
+- 还没有实现 memory 本地持久化
 - 还没有实现工具调用和任务循环
 
 ## 文档使用方式

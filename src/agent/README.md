@@ -29,5 +29,5 @@
 
 - `prompts.js` 已建立
 - 支持从 `agent.json` / `soul.md` 加载用户自定义 prompt
-- `memory.js` 已建立，支持创建、追加、清空和回滚消息
+- `memory.js` 已建立，支持创建、追加、清空、回滚和最大消息数裁剪
 - `core.js`、`loop.js` 等待后续阶段落地

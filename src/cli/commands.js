@@ -1,8 +1,15 @@
-import { clearMessages, getCurrentModel, getModelById, switchModel } from './state.js';
+import {
+  clearMessages,
+  getCurrentModel,
+  getMemoryStats,
+  getModelById,
+  switchModel,
+} from './state.js';
 import {
   printCurrentAgent,
   printCurrentModel,
   printHelp,
+  printMemoryStats,
   printMessagesCleared,
   printModelNotFound,
   printModelSwitched,
@@ -22,6 +29,11 @@ export function handleCommand(trimmed, state) {
 
   if (trimmed === '/model') {
     printCurrentModel(getCurrentModel(state));
+    return true;
+  }
+
+  if (trimmed === '/memory') {
+    printMemoryStats(getMemoryStats(state));
     return true;
   }
 

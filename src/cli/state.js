@@ -5,6 +5,7 @@ import {
   appendUserMessage as appendMemoryUserMessage,
   clearMemory,
   createMemory,
+  getMemoryStats as getAgentMemoryStats,
   getMessages as getMemoryMessages,
   rollbackLastUserMessage as rollbackMemoryLastUserMessage,
 } from '../agent/memory.js';
@@ -12,13 +13,17 @@ import {
 export function createCliState() {
   return {
     agent: env.agent,
-    memory: createMemory(),
+    memory: createMemory({ maxMessages: env.memory.maxMessages }),
     currentModelId: env.llm.activeModelId,
   };
 }
 
 export function getMessages(state) {
   return getMemoryMessages(state.memory);
+}
+
+export function getMemoryStats(state) {
+  return getAgentMemoryStats(state.memory);
 }
 
 export function appendUserMessage(state, content) {
