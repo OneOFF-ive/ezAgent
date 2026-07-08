@@ -13,26 +13,66 @@ export function printWelcome(model, userConfigPath, agent) {
   console.log(`Soul 来源: ${agent.promptSource}`);
   console.log(`当前模型: ${formatModelLabel(model)}`);
   console.log(`用户配置文件: ${userConfigPath}`);
-  console.log(
-    '可用命令: /help, /agent, /clear, /memory, /session, /save, /load, /model, /models, /switch <id>, exit, quit\n',
-  );
+  console.log('');
+  console.log('常用命令:');
+  console.log('- /help: 查看完整命令说明');
+  console.log('- /menu: 返回会话菜单');
+  console.log('- /session list: 查看已保存会话');
+  console.log('- /model list: 查看已注册模型');
+  console.log('- exit 或 quit: 退出 CLI\n');
+}
+
+export function printStartMenu(sessions) {
+  console.log('请选择会话:');
+  console.log('1. 创建新对话');
+  console.log('2. 选择已有会话继续');
+
+  if (sessions.length > 0) {
+    console.log('');
+    console.log('已保存会话:');
+
+    sessions.forEach((session, index) => {
+      console.log(`${index + 1}. ${session.sessionId} (${session.updatedAt})`);
+    });
+  } else {
+    console.log('');
+    console.log('当前还没有已保存会话。');
+  }
+
+  console.log('');
+}
+
+export function printStartMenuNoSessions() {
+  console.log('还没有已保存会话，请先创建新对话。\n');
+}
+
+export function printStartMenuInvalidChoice() {
+  console.log('无效选择，请输入 1、2，或输入 exit 退出。\n');
 }
 
 export function printHelp() {
   console.log('命令说明:');
-  console.log('- 直接输入问题即可与当前模型对话');
-  console.log('- /agent: 查看当前 Agent 和 Soul 配置');
-  console.log('- /clear: 清空当前会话上下文');
-  console.log('- /memory: 查看当前 memory 状态');
+  console.log('');
+  console.log('对话:');
+  console.log('- 直接输入内容: 与当前模型对话');
+  console.log('- /clear: 清空当前会话上下文，并自动保存');
+  console.log('- /menu: 返回会话开始菜单');
+  console.log('- exit 或 quit: 退出 CLI');
+  console.log('');
+  console.log('会话:');
   console.log('- /session: 查看当前会话信息');
-  console.log('- /sessions: 查看已保存会话');
-  console.log('- /save [id]: 保存当前会话');
-  console.log('- /load [id]: 加载已保存会话');
+  console.log('- /session list: 查看已保存会话');
+  console.log('- /session load <id>: 加载已保存会话，运行中切换会话');
+  console.log('');
+  console.log('模型:');
   console.log('- /model: 查看当前模型');
-  console.log('- /models: 查看已注册模型');
-  console.log('- /switch <id>: 切换到指定模型，并继续沿用当前上下文');
-  console.log('- /help: 查看帮助');
-  console.log('- exit 或 quit: 退出 CLI\n');
+  console.log('- /model list: 查看已注册模型');
+  console.log('- /model switch <id>: 切换到指定模型，并继续沿用当前上下文');
+  console.log('');
+  console.log('调试:');
+  console.log('- /agent: 查看当前 Agent 和 Soul 配置');
+  console.log('- /memory: 查看当前 memory 状态');
+  console.log('- /help: 查看帮助\n');
 }
 
 export function printCurrentModel(model) {
@@ -75,18 +115,11 @@ export function printSessionInfo(info) {
   console.log('Session 状态:');
   console.log(`- 当前会话: ${info.activeSession}`);
   console.log(`- 会话目录: ${info.sessionDir}`);
-  console.log(`- 自动保存: ${info.autoSave ? '开启' : '关闭'}`);
+  console.log('- 自动保存: 开启');
   console.log(`- 启动时已加载: ${info.sessionLoaded ? '是' : '否'}`);
   console.log(`- 最近保存时间: ${info.lastSavedAt || '尚未保存'}`);
   console.log(`- 当前消息数: ${info.memory.messageCount}/${info.memory.maxMessages}`);
   console.log(`- 已裁剪消息数: ${info.memory.trimmedMessages}\n`);
-}
-
-export function printSessionSaved(session) {
-  console.log(`会话已保存: ${session.sessionId}`);
-  console.log(`文件: ${session.filePath}`);
-  console.log(`消息数: ${session.messageCount}`);
-  console.log(`保存时间: ${session.savedAt}\n`);
 }
 
 export function printSessionLoaded(session) {
@@ -98,6 +131,14 @@ export function printSessionLoaded(session) {
   }
 
   console.log(`当前消息数: ${session.memory.messageCount}/${session.memory.maxMessages}\n`);
+}
+
+export function printSessionLoadUsage() {
+  console.log('请提供会话 id，例如：/session load my-session\n');
+}
+
+export function printSessionCreated(sessionId) {
+  console.log(`新会话已创建: ${sessionId}\n`);
 }
 
 export function printSessionNotFound(sessionId) {
@@ -126,6 +167,10 @@ export function printCommandError(error) {
 
 export function printModelNotFound(modelId) {
   console.log(`未找到模型: ${modelId}\n`);
+}
+
+export function printModelSwitchUsage() {
+  console.log('请提供模型 id，例如：/model switch openai-main\n');
 }
 
 export function printMessagesCleared() {

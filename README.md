@@ -13,6 +13,7 @@
 
 - 基于 Node.js 与 ESM
 - 命令行交互式 CLI
+- 启动时支持创建新对话或选择已有会话继续
 - 支持多轮上下文对话
 - 支持 memory 最大消息数裁剪
 - 支持本地会话保存、恢复和自动保存
@@ -59,6 +60,21 @@ cp soul.example.md soul.md
 ```bash
 npm run dev
 ```
+
+CLI 启动后常用命令：
+
+- `/help`
+  查看完整命令说明
+- `/menu`
+  返回会话开始菜单
+- `/session list`
+  查看已保存会话
+- `/session load <id>`
+  加载指定会话
+- `/model list`
+  查看已注册模型
+- `/model switch <id>`
+  切换模型并保留当前上下文
 
 ### 4. 运行检查
 

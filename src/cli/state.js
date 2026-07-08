@@ -14,20 +14,10 @@ import {
 import { listSessions, loadSession, saveSession } from '../agent/session-store.js';
 
 function createInitialMemory() {
-  const loadedSession = loadSession(env.memory.sessionDir, env.memory.activeSession);
-
-  if (!loadedSession) {
-    return {
-      memory: createMemory({ maxMessages: env.memory.maxMessages }),
-      lastSavedAt: null,
-      sessionLoaded: false,
-    };
-  }
-
   return {
-    memory: restoreMemory(loadedSession.memory, { maxMessages: env.memory.maxMessages }),
-    lastSavedAt: loadedSession.savedAt,
-    sessionLoaded: true,
+    memory: createMemory({ maxMessages: env.memory.maxMessages }),
+    lastSavedAt: null,
+    sessionLoaded: false,
   };
 }
 
@@ -38,8 +28,7 @@ export function createCliState() {
     agent: env.agent,
     memory: initialMemory.memory,
     sessionDir: env.memory.sessionDir,
-    activeSession: env.memory.activeSession,
-    autoSave: env.memory.autoSave,
+    activeSession: null,
     lastSavedAt: initialMemory.lastSavedAt,
     sessionLoaded: initialMemory.sessionLoaded,
     currentModelId: env.llm.activeModelId,
@@ -58,7 +47,6 @@ export function getSessionInfo(state) {
   return {
     activeSession: state.activeSession,
     sessionDir: state.sessionDir,
-    autoSave: state.autoSave,
     lastSavedAt: state.lastSavedAt,
     sessionLoaded: state.sessionLoaded,
     memory: getMemoryStats(state),
@@ -85,11 +73,22 @@ export function clearMessages(state) {
   clearMemory(state.memory);
 }
 
+export function startNewSession(state, sessionId) {
+  state.memory = createMemory({ maxMessages: env.memory.maxMessages });
+  state.activeSession = sessionId;
+  state.lastSavedAt = null;
+  state.sessionLoaded = false;
+}
+
 export function rollbackLastUserMessage(state) {
   rollbackMemoryLastUserMessage(state.memory);
 }
 
 export function saveCurrentSession(state, sessionId = state.activeSession) {
+  if (!sessionId) {
+    throw new Error('No active session. Please create or load a session first.');
+  }
+
   const savedSession = saveSession(state.sessionDir, sessionId, createMemorySnapshot(state.memory));
 
   state.activeSession = savedSession.sessionId;
@@ -99,14 +98,14 @@ export function saveCurrentSession(state, sessionId = state.activeSession) {
 }
 
 export function autoSaveCurrentSession(state) {
-  if (!state.autoSave) {
-    return null;
-  }
-
   return saveCurrentSession(state, state.activeSession);
 }
 
 export function loadCurrentSession(state, sessionId = state.activeSession) {
+  if (!sessionId) {
+    throw new Error('No active session. Please provide a session id.');
+  }
+
   const loadedSession = loadSession(state.sessionDir, sessionId);
 
   if (!loadedSession) {

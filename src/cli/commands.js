@@ -7,7 +7,6 @@ import {
   getSessionInfo,
   listSavedSessions,
   loadCurrentSession,
-  saveCurrentSession,
   switchModel,
 } from './state.js';
 import {
@@ -18,11 +17,12 @@ import {
   printMemoryStats,
   printMessagesCleared,
   printModelNotFound,
+  printModelSwitchUsage,
   printSavedSessions,
   printSessionInfo,
   printSessionLoaded,
+  printSessionLoadUsage,
   printSessionNotFound,
-  printSessionSaved,
   printModelSwitched,
   printRegisteredModels,
 } from './view.js';
@@ -31,12 +31,100 @@ function commandArgument(trimmed, command) {
   return trimmed.slice(command.length).trim();
 }
 
-function handleSessionCommand(action) {
+function safelyRunCommand(action) {
   try {
     action();
   } catch (error) {
     printCommandError(error);
   }
+}
+
+function loadSessionById(state, sessionId) {
+  if (!sessionId) {
+    printSessionLoadUsage();
+    return;
+  }
+
+  const loadedSession = loadCurrentSession(state, sessionId);
+
+  if (!loadedSession) {
+    printSessionNotFound(sessionId);
+    return;
+  }
+
+  printSessionLoaded(loadedSession);
+}
+
+function switchModelById(state, modelId) {
+  const nextModel = switchModel(state, modelId);
+
+  if (!nextModel) {
+    printModelNotFound(modelId);
+    printRegisteredModels(state.currentModelId, getModelById);
+    return;
+  }
+
+  printModelSwitched(nextModel);
+}
+
+function handleSessionCommand(trimmed, state) {
+  if (trimmed === '/session') {
+    printSessionInfo(getSessionInfo(state));
+    return true;
+  }
+
+  if (trimmed === '/sessions' || trimmed === '/session list') {
+    safelyRunCommand(() => {
+      printSavedSessions(listSavedSessions(state), state.activeSession);
+    });
+    return true;
+  }
+
+  if (trimmed === '/load' || trimmed === '/session load') {
+    printSessionLoadUsage();
+    return true;
+  }
+
+  if (trimmed.startsWith('/load ')) {
+    safelyRunCommand(() => loadSessionById(state, commandArgument(trimmed, '/load')));
+    return true;
+  }
+
+  if (trimmed.startsWith('/session load ')) {
+    safelyRunCommand(() => loadSessionById(state, commandArgument(trimmed, '/session load')));
+    return true;
+  }
+
+  return false;
+}
+
+function handleModelCommand(trimmed, state) {
+  if (trimmed === '/model') {
+    printCurrentModel(getCurrentModel(state));
+    return true;
+  }
+
+  if (trimmed === '/models' || trimmed === '/model list') {
+    printRegisteredModels(state.currentModelId, getModelById);
+    return true;
+  }
+
+  if (trimmed === '/model switch') {
+    printModelSwitchUsage();
+    return true;
+  }
+
+  if (trimmed.startsWith('/switch ')) {
+    switchModelById(state, commandArgument(trimmed, '/switch'));
+    return true;
+  }
+
+  if (trimmed.startsWith('/model switch ')) {
+    switchModelById(state, commandArgument(trimmed, '/model switch'));
+    return true;
+  }
+
+  return false;
 }
 
 export function handleCommand(trimmed, state) {
@@ -50,75 +138,25 @@ export function handleCommand(trimmed, state) {
     return true;
   }
 
-  if (trimmed === '/model') {
-    printCurrentModel(getCurrentModel(state));
-    return true;
-  }
-
   if (trimmed === '/memory') {
     printMemoryStats(getMemoryStats(state));
     return true;
   }
 
-  if (trimmed === '/session') {
-    printSessionInfo(getSessionInfo(state));
+  if (handleSessionCommand(trimmed, state)) {
     return true;
   }
 
-  if (trimmed === '/sessions') {
-    handleSessionCommand(() => {
-      printSavedSessions(listSavedSessions(state), state.activeSession);
-    });
-    return true;
-  }
-
-  if (trimmed === '/save' || trimmed.startsWith('/save ')) {
-    handleSessionCommand(() => {
-      const sessionId = commandArgument(trimmed, '/save') || state.activeSession;
-      printSessionSaved(saveCurrentSession(state, sessionId));
-    });
-    return true;
-  }
-
-  if (trimmed === '/load' || trimmed.startsWith('/load ')) {
-    handleSessionCommand(() => {
-      const sessionId = commandArgument(trimmed, '/load') || state.activeSession;
-      const loadedSession = loadCurrentSession(state, sessionId);
-
-      if (!loadedSession) {
-        printSessionNotFound(sessionId);
-        return;
-      }
-
-      printSessionLoaded(loadedSession);
-    });
-    return true;
-  }
-
-  if (trimmed === '/models') {
-    printRegisteredModels(state.currentModelId, getModelById);
+  if (handleModelCommand(trimmed, state)) {
     return true;
   }
 
   if (trimmed === '/clear') {
     clearMessages(state);
-    handleSessionCommand(() => {
+    safelyRunCommand(() => {
       autoSaveCurrentSession(state);
     });
     printMessagesCleared();
-    return true;
-  }
-
-  if (trimmed.startsWith('/switch ')) {
-    const nextModel = switchModel(state, trimmed.slice('/switch '.length).trim());
-
-    if (!nextModel) {
-      printModelNotFound(trimmed.slice('/switch '.length).trim());
-      printRegisteredModels(state.currentModelId, getModelById);
-      return true;
-    }
-
-    printModelSwitched(nextModel);
     return true;
   }
 

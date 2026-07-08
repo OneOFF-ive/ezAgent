@@ -117,8 +117,8 @@
 - 新增 `src/agent/session-store.js`
 - 支持导出和恢复 memory 快照
 - 支持本地 JSON 会话保存与加载
-- CLI 新增 `/save`、`/load`、`/session`、`/sessions`
-- 新增 `MEMORY_SESSION_DIR` 和 `MEMORY_ACTIVE_SESSION` 配置
+- CLI 新增 `/session load <id>`、`/session`、`/session list`
+- 新增 `MEMORY_SESSION_DIR` 配置
 
 ### 增加 session 自动加载和自动保存
 
@@ -126,11 +126,52 @@
 
 完成内容：
 
-- 启动时自动加载 `MEMORY_ACTIVE_SESSION`
+- 启动时通过开始菜单选择新建或加载会话
 - 对话成功后自动保存当前 session
 - `/clear` 后自动保存当前 session
-- 新增 `MEMORY_AUTO_SAVE` 配置
-- `/session` 显示自动保存状态和最近保存时间
+- 自动保存为固定行为，不再提供关闭配置
+- `/session` 显示最近保存时间
+
+### 增加启动会话菜单
+
+状态：已完成
+
+完成内容：
+
+- CLI 启动时先进入会话开始菜单
+- 支持创建新对话并生成 session id
+- 支持选择已有会话继续对话
+- 保留 `/session load <id>`、`/session`、`/session list` 命令
+
+### 增加运行中返回菜单
+
+状态：已完成
+
+完成内容：
+
+- CLI 新增 `/menu`
+- 返回菜单前会自动保存当前会话
+- 可在运行中创建新对话或选择已有会话继续
+
+### 优化 CLI 命令命名
+
+状态：已完成
+
+完成内容：
+
+- 会话命令统一为 `/session ...`
+- 模型命令统一为 `/model ...`
+- 保留 `/load`、`/sessions`、`/switch`、`/models` 作为兼容别名
+
+### 优化 CLI 命令提示
+
+状态：已完成
+
+完成内容：
+
+- 启动页只展示高频命令，避免一行命令过长
+- `/help` 按对话、会话、模型、调试分组展示
+- README 补充 CLI 常用命令入口
 
 ### Phase 1 核心闭环收口
 

@@ -107,16 +107,17 @@
 
 - 支持连续对话
 - 支持多轮上下文
+- 支持启动时创建新对话或选择已有会话继续
 - 支持 `/help`
+- 支持 `/menu`
 - 支持 `/agent`
 - 支持 `/memory`
 - 支持 `/model`
-- 支持 `/models`
+- 支持 `/model list`
+- 支持 `/model switch <id>`
 - 支持 `/session`
-- 支持 `/sessions`
-- 支持 `/save [id]`
-- 支持 `/load [id]`
-- 支持 `/switch <id>`
+- 支持 `/session list`
+- 支持 `/session load <id>`
 - 支持 `/clear`
 - 支持 `exit / quit`
 
