@@ -8,6 +8,8 @@
 
 - `prompts.js`
   负责提供默认系统提示词和初始 system message。
+- `memory.js`
+  负责管理当前会话的短期消息记忆。
 
 相关用户配置：
 
@@ -20,8 +22,6 @@
 
 - `core.js`
   负责组合模型、记忆和工具
-- `memory.js`
-  负责短期对话记忆
 - `loop.js`
   负责任务执行循环
 
@@ -29,4 +29,5 @@
 
 - `prompts.js` 已建立
 - 支持从 `agent.json` / `soul.md` 加载用户自定义 prompt
-- `memory.js`、`core.js`、`loop.js` 等待后续阶段落地
+- `memory.js` 已建立，支持创建、追加、清空和回滚消息
+- `core.js`、`loop.js` 等待后续阶段落地

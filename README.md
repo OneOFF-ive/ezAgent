@@ -83,6 +83,7 @@ ezAgent/
 ├── src/
 │   ├── index.js
 │   ├── agent/
+│   │   ├── memory.js
 │   │   ├── README.md
 │   │   └── prompts.js
 │   ├── cli/
@@ -171,7 +172,7 @@ ezAgent/
 ### 其他目录
 
 - `src/agent/`
-  Agent 核心层，目前包含系统提示词模块
+  Agent 核心层，目前包含系统提示词和短期 memory 模块
 - `src/tools/`
   预留给工具系统
 - `src/utils/`

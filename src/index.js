@@ -3,7 +3,14 @@ import { stdin as input, stdout as output } from 'node:process';
 import { env } from './config/env.js';
 import { getUserConfigFilePath } from './config/user-config.js';
 import { handleCommand } from './cli/commands.js';
-import { createCliState, getCurrentModel, rollbackLastUserMessage } from './cli/state.js';
+import {
+  appendAssistantMessage,
+  appendUserMessage,
+  createCliState,
+  getCurrentModel,
+  getMessages,
+  rollbackLastUserMessage,
+} from './cli/state.js';
 import { generateText } from './llm/client.js';
 import {
   EXIT_COMMANDS,
@@ -37,9 +44,9 @@ async function main() {
 
     try {
       const model = getCurrentModel(state);
-      state.messages.push({ role: 'user', content: trimmed });
-      const response = await generateText(state.messages, model);
-      state.messages.push({ role: 'assistant', content: response });
+      appendUserMessage(state, trimmed);
+      const response = await generateText(getMessages(state), model);
+      appendAssistantMessage(state, response);
       printAgentReply(model, response);
     } catch (error) {
       // 请求失败时回滚本轮 user 消息，避免错误输入污染上下文。

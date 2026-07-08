@@ -71,11 +71,13 @@
 当前状态：
 
 - 已抽出基础系统提示词
+- 已建立最小 memory 模块
 - 支持从 `agent.json` / `soul.md` 加载用户自定义 prompt
-- memory、core、loop 尚未正式实现
+- core、loop 尚未正式实现
 
 当前文件：
 
+- `src/agent/memory.js`
 - `src/agent/prompts.js`
 
 ### 5. Tool Layer
@@ -130,6 +132,7 @@
 - 已抽出默认系统提示词
 - 已提供初始 system message 创建入口
 - 支持用户通过 `agent.json` / `soul.md` 自定义 prompt
+- 已建立短期消息 memory 模块
 
 ## 推荐开发原则
 
@@ -235,7 +238,7 @@
 ## 当前约束
 
 - 目前核心能力仍聚焦在 CLI 与 LLM 接入层
-- `src/agent/` 目前已有 prompts 和自定义 prompt 加载能力，memory / core / loop 仍是后续阶段能力
+- `src/agent/` 目前已有 prompts、memory 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
 - `src/tools/` 仍是后续阶段能力
 - 还没有正式引入测试用例
 - 还没有实现 memory 裁剪与持久化

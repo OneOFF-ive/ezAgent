@@ -24,34 +24,31 @@
 
 ## 当前建议
 
-### 1. 建立最小 memory 模块
+### 1. 扩展 memory 模块
 
 优先级：高
 
-建议新增：
+建议在 `src/agent/memory.js` 中继续补充：
 
-- `src/agent/memory.js`
-
-先负责最基础的消息管理：
-
-- 创建初始消息
-- 追加 user / assistant 消息
-- 清空上下文
-- 回滚失败请求的 user 消息
+- 上下文窗口裁剪
+- 最大消息数量或最大字符数限制
+- 会话快照导出
+- 后续本地持久化接口
 
 原因：
 
-- 当前上下文逻辑在 CLI state 里。
-- Phase 2 的核心是 memory，提前抽出能让后续裁剪、持久化更自然。
+- memory 模块已经建立，下一步可以把它从“消息容器”推进到“上下文管理器”。
+- 裁剪和持久化是 Phase 2 的核心能力。
 
 ### 2. 增加最小测试
 
-优先级：中
+优先级：高
 
 建议先用 Node 内置 `node:test`，不用急着引入复杂测试框架。
 
 优先测试：
 
+- `src/agent/memory.js`
 - `src/config/llm-config.js`
 - `src/llm/protocols.js`
 - `src/cli/commands.js`
@@ -111,3 +108,14 @@
 - 支持通过 `agent.json` 指定 `soulPath`
 - 支持通过 `soul.md` 自定义系统提示词
 - CLI 新增 `/agent` 查看当前 Agent 和 Soul 来源
+
+### 建立最小 memory 模块
+
+状态：已完成
+
+完成内容：
+
+- 新增 `src/agent/memory.js`
+- 从 `src/cli/state.js` 抽离消息数组管理
+- 支持创建初始消息、追加 user / assistant 消息
+- 支持清空上下文和回滚失败请求的 user 消息

@@ -1,17 +1,32 @@
 import { env } from '../config/env.js';
 import { updateActiveModelId } from '../config/user-config.js';
-import { createSystemMessage } from '../agent/prompts.js';
-
-export function createInitialMessages() {
-  return [createSystemMessage()];
-}
+import {
+  appendAssistantMessage as appendMemoryAssistantMessage,
+  appendUserMessage as appendMemoryUserMessage,
+  clearMemory,
+  createMemory,
+  getMessages as getMemoryMessages,
+  rollbackLastUserMessage as rollbackMemoryLastUserMessage,
+} from '../agent/memory.js';
 
 export function createCliState() {
   return {
     agent: env.agent,
-    messages: createInitialMessages(),
+    memory: createMemory(),
     currentModelId: env.llm.activeModelId,
   };
+}
+
+export function getMessages(state) {
+  return getMemoryMessages(state.memory);
+}
+
+export function appendUserMessage(state, content) {
+  return appendMemoryUserMessage(state.memory, content);
+}
+
+export function appendAssistantMessage(state, content) {
+  return appendMemoryAssistantMessage(state.memory, content);
 }
 
 export function getModelById(modelId) {
@@ -23,11 +38,11 @@ export function getCurrentModel(state) {
 }
 
 export function clearMessages(state) {
-  state.messages = createInitialMessages();
+  clearMemory(state.memory);
 }
 
 export function rollbackLastUserMessage(state) {
-  state.messages = state.messages.slice(0, -1);
+  rollbackMemoryLastUserMessage(state.memory);
 }
 
 export function switchModel(state, nextModelId) {
