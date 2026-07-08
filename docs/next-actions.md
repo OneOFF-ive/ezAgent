@@ -24,31 +24,18 @@
 
 ## 当前建议
 
-### 1. 增加 memory 持久化
+### 1. 增加最小测试
 
 优先级：高
 
-建议继续扩展 memory 能力：
-
-- 会话快照导出
-- 本地会话保存
-- 本地会话恢复
-- 会话文件目录约定
-
-原因：
-
-- memory 模块已经支持短期消息管理和上下文裁剪。
-- 下一步做持久化，可以让 Agent 从“当前进程内记忆”升级到“可恢复会话”。
-
-### 2. 增加最小测试
-
-优先级：高
+当前阶段：Phase 2
 
 建议先用 Node 内置 `node:test`，不用急着引入复杂测试框架。
 
 优先测试：
 
 - `src/agent/memory.js`
+- `src/agent/session-store.js`
 - `src/config/llm-config.js`
 - `src/llm/protocols.js`
 - `src/cli/commands.js`
@@ -58,7 +45,7 @@
 - 这些模块已经承担了关键边界。
 - 未来继续重构时，测试能防止配置解析和协议适配回退。
 
-### 3. 优化 LLM 请求稳定性
+### 2. 优化 LLM 请求稳定性
 
 优先级：中
 
@@ -120,3 +107,37 @@
 - 支持记录已裁剪消息数量
 - CLI 新增 `/memory` 查看当前 memory 状态
 - 同步更新 Phase 1 / Phase 2 进度说明
+
+### 增加 memory 持久化
+
+状态：已完成
+
+完成内容：
+
+- 新增 `src/agent/session-store.js`
+- 支持导出和恢复 memory 快照
+- 支持本地 JSON 会话保存与加载
+- CLI 新增 `/save`、`/load`、`/session`、`/sessions`
+- 新增 `MEMORY_SESSION_DIR` 和 `MEMORY_ACTIVE_SESSION` 配置
+
+### 增加 session 自动加载和自动保存
+
+状态：已完成
+
+完成内容：
+
+- 启动时自动加载 `MEMORY_ACTIVE_SESSION`
+- 对话成功后自动保存当前 session
+- `/clear` 后自动保存当前 session
+- 新增 `MEMORY_AUTO_SAVE` 配置
+- `/session` 显示自动保存状态和最近保存时间
+
+### Phase 1 核心闭环收口
+
+状态：已完成
+
+完成内容：
+
+- Phase 1 验收标准已检查
+- CLI、LLM 接入、Agent prompt 和短期 memory 链路已具备
+- 后续重点切换到 Phase 2 的 memory 持久化

@@ -10,6 +10,8 @@
   负责提供默认系统提示词和初始 system message。
 - `memory.js`
   负责管理当前会话的短期消息记忆。
+- `session-store.js`
+  负责把 memory 快照保存到本地 JSON 文件，并从文件恢复会话。
 
 相关用户配置：
 
@@ -30,4 +32,5 @@
 - `prompts.js` 已建立
 - 支持从 `agent.json` / `soul.md` 加载用户自定义 prompt
 - `memory.js` 已建立，支持创建、追加、清空、回滚和最大消息数裁剪
+- 支持通过 `data/sessions/` 保存、恢复和自动保存本地会话
 - `core.js`、`loop.js` 等待后续阶段落地

@@ -14,7 +14,7 @@ export function printWelcome(model, userConfigPath, agent) {
   console.log(`当前模型: ${formatModelLabel(model)}`);
   console.log(`用户配置文件: ${userConfigPath}`);
   console.log(
-    '可用命令: /help, /agent, /clear, /memory, /model, /models, /switch <id>, exit, quit\n',
+    '可用命令: /help, /agent, /clear, /memory, /session, /save, /load, /model, /models, /switch <id>, exit, quit\n',
   );
 }
 
@@ -24,6 +24,10 @@ export function printHelp() {
   console.log('- /agent: 查看当前 Agent 和 Soul 配置');
   console.log('- /clear: 清空当前会话上下文');
   console.log('- /memory: 查看当前 memory 状态');
+  console.log('- /session: 查看当前会话信息');
+  console.log('- /sessions: 查看已保存会话');
+  console.log('- /save [id]: 保存当前会话');
+  console.log('- /load [id]: 加载已保存会话');
   console.log('- /model: 查看当前模型');
   console.log('- /models: 查看已注册模型');
   console.log('- /switch <id>: 切换到指定模型，并继续沿用当前上下文');
@@ -65,6 +69,59 @@ export function printMemoryStats(stats) {
   console.log(`- 当前消息数: ${stats.messageCount}/${stats.maxMessages}`);
   console.log(`- 对话消息数: ${stats.conversationMessageCount}`);
   console.log(`- 已裁剪消息数: ${stats.trimmedMessages}\n`);
+}
+
+export function printSessionInfo(info) {
+  console.log('Session 状态:');
+  console.log(`- 当前会话: ${info.activeSession}`);
+  console.log(`- 会话目录: ${info.sessionDir}`);
+  console.log(`- 自动保存: ${info.autoSave ? '开启' : '关闭'}`);
+  console.log(`- 启动时已加载: ${info.sessionLoaded ? '是' : '否'}`);
+  console.log(`- 最近保存时间: ${info.lastSavedAt || '尚未保存'}`);
+  console.log(`- 当前消息数: ${info.memory.messageCount}/${info.memory.maxMessages}`);
+  console.log(`- 已裁剪消息数: ${info.memory.trimmedMessages}\n`);
+}
+
+export function printSessionSaved(session) {
+  console.log(`会话已保存: ${session.sessionId}`);
+  console.log(`文件: ${session.filePath}`);
+  console.log(`消息数: ${session.messageCount}`);
+  console.log(`保存时间: ${session.savedAt}\n`);
+}
+
+export function printSessionLoaded(session) {
+  console.log(`会话已加载: ${session.sessionId}`);
+  console.log(`文件: ${session.filePath}`);
+
+  if (session.savedAt) {
+    console.log(`保存时间: ${session.savedAt}`);
+  }
+
+  console.log(`当前消息数: ${session.memory.messageCount}/${session.memory.maxMessages}\n`);
+}
+
+export function printSessionNotFound(sessionId) {
+  console.log(`未找到会话: ${sessionId}\n`);
+}
+
+export function printSavedSessions(sessions, activeSession) {
+  if (sessions.length === 0) {
+    console.log('还没有已保存会话。\n');
+    return;
+  }
+
+  console.log('已保存会话:');
+
+  for (const session of sessions) {
+    const marker = session.sessionId === activeSession ? '*' : '-';
+    console.log(`${marker} ${session.sessionId} (${session.updatedAt})`);
+  }
+
+  console.log('');
+}
+
+export function printCommandError(error) {
+  console.error(`Command Error: ${error instanceof Error ? error.message : String(error)}\n`);
 }
 
 export function printModelNotFound(modelId) {

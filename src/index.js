@@ -6,6 +6,7 @@ import { handleCommand } from './cli/commands.js';
 import {
   appendAssistantMessage,
   appendUserMessage,
+  autoSaveCurrentSession,
   createCliState,
   getCurrentModel,
   getMessages,
@@ -48,6 +49,12 @@ async function main() {
       const response = await generateText(getMessages(state), model);
       appendAssistantMessage(state, response);
       printAgentReply(model, response);
+
+      try {
+        autoSaveCurrentSession(state);
+      } catch (error) {
+        printAgentError(error);
+      }
     } catch (error) {
       // 请求失败时回滚本轮 user 消息，避免错误输入污染上下文。
       rollbackLastUserMessage(state);

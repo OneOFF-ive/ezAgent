@@ -8,6 +8,7 @@ node_modules/
 user-config.json
 agent.json
 soul.md
+data/sessions/
 src/.env
 src/.env.*
 !src/.env.example

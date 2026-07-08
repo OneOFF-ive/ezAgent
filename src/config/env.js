@@ -19,6 +19,14 @@ function toPositiveInteger(value, fallback, minimum = 1) {
   return Math.max(Math.floor(num), minimum);
 }
 
+function toBoolean(value, fallback) {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+
+  return ['1', 'true', 'yes', 'on'].includes(String(value).toLowerCase());
+}
+
 const userConfigPath = process.env.USER_CONFIG_PATH || './user-config.json';
 const agentConfigPath = process.env.AGENT_CONFIG_PATH || './agent.json';
 const agent = resolveAgentConfig(agentConfigPath);
@@ -40,6 +48,9 @@ export const env = {
   agent,
   memory: {
     maxMessages: toPositiveInteger(process.env.MEMORY_MAX_MESSAGES, 20, 2),
+    sessionDir: process.env.MEMORY_SESSION_DIR || './data/sessions',
+    activeSession: process.env.MEMORY_ACTIVE_SESSION || 'default',
+    autoSave: toBoolean(process.env.MEMORY_AUTO_SAVE, true),
   },
   llm,
 };

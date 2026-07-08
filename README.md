@@ -15,6 +15,7 @@
 - 命令行交互式 CLI
 - 支持多轮上下文对话
 - 支持 memory 最大消息数裁剪
+- 支持本地会话保存、恢复和自动保存
 - 支持动态切换模型并保留上下文
 - 支持多模型注册
 - 支持三种协议：
@@ -77,6 +78,8 @@ ezAgent/
 ├── soul.example.md
 ├── user-config.json
 ├── user-config.example.json
+├── data/
+│   └── sessions/
 ├── docs/
 │   ├── README.md
 │   ├── learning-plan.md
@@ -86,7 +89,8 @@ ezAgent/
 │   ├── agent/
 │   │   ├── memory.js
 │   │   ├── README.md
-│   │   └── prompts.js
+│   │   ├── prompts.js
+│   │   └── session-store.js
 │   ├── cli/
 │   │   ├── commands.js
 │   │   ├── state.js
@@ -130,6 +134,8 @@ ezAgent/
   用户级模型配置
 - `user-config.example.json`
   用户级模型配置模板
+- `data/sessions/`
+  本地会话持久化目录，默认不提交到 Git
 
 ### `src/index.js`
 
@@ -173,7 +179,7 @@ ezAgent/
 ### 其他目录
 
 - `src/agent/`
-  Agent 核心层，目前包含系统提示词和短期 memory 模块
+  Agent 核心层，目前包含系统提示词、短期 memory 和会话持久化模块
 - `src/tools/`
   预留给工具系统
 - `src/utils/`

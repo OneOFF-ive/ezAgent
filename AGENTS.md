@@ -9,7 +9,8 @@
 - CLI 交互层
 - 配置层
 - LLM 接入层
-- 后续的记忆、工具和任务执行层
+- 记忆层
+- 后续的工具和任务执行层
 
 ## 当前架构
 
@@ -72,6 +73,7 @@
 
 - 已抽出基础系统提示词
 - 已建立最小 memory 模块
+- 已支持 memory 本地持久化
 - 支持从 `agent.json` / `soul.md` 加载用户自定义 prompt
 - core、loop 尚未正式实现
 
@@ -79,6 +81,7 @@
 
 - `src/agent/memory.js`
 - `src/agent/prompts.js`
+- `src/agent/session-store.js`
 
 ### 5. Tool Layer
 
@@ -109,6 +112,10 @@
 - 支持 `/memory`
 - 支持 `/model`
 - 支持 `/models`
+- 支持 `/session`
+- 支持 `/sessions`
+- 支持 `/save [id]`
+- 支持 `/load [id]`
 - 支持 `/switch <id>`
 - 支持 `/clear`
 - 支持 `exit / quit`
@@ -136,6 +143,13 @@
 - 支持用户通过 `agent.json` / `soul.md` 自定义 prompt
 - 已建立短期消息 memory 模块
 - 已支持 memory 最大消息数裁剪
+- 已支持本地会话保存、恢复和自动保存
+
+### 阶段进度
+
+- Phase 0 已完成
+- Phase 1 核心闭环已完成
+- Phase 2 已开始，当前重点是 memory 测试与可靠性
 
 ## 推荐开发原则
 
@@ -241,10 +255,9 @@
 ## 当前约束
 
 - 目前核心能力仍聚焦在 CLI 与 LLM 接入层
-- `src/agent/` 目前已有 prompts、memory 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
+- `src/agent/` 目前已有 prompts、memory、session-store 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
 - `src/tools/` 仍是后续阶段能力
 - 还没有正式引入测试用例
-- 还没有实现 memory 本地持久化
 - 还没有实现工具调用和任务循环
 
 ## 文档使用方式
