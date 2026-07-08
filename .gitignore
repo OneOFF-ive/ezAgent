@@ -37,6 +37,7 @@ coverage/
 Thumbs.db
 .idea/
 .vscode/
+.codex
 
 # Local tool caches
 .eslintcache
