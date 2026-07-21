@@ -108,7 +108,13 @@ export function printMemoryStats(stats) {
   console.log('Memory 状态:');
   console.log(`- 当前消息数: ${stats.messageCount}/${stats.maxMessages}`);
   console.log(`- 对话消息数: ${stats.conversationMessageCount}`);
-  console.log(`- 已裁剪消息数: ${stats.trimmedMessages}\n`);
+  console.log(`- 当前估算 Token: ${stats.estimatedTokens}/${stats.maxTokens}`);
+  console.log(`- 已裁剪消息数: ${stats.trimmedMessages}`);
+  console.log(`- AI 压缩: ${stats.compressionEnabled ? '开启' : '关闭'}`);
+  console.log(`- 压缩触发 Token: ${stats.compressionThresholdTokens}`);
+  console.log(`- 压缩后保留近期 Token: ${stats.compressionKeepRecentTokens}`);
+  console.log(`- 已执行压缩次数: ${stats.compressionCount}`);
+  console.log(`- 累计压缩消息数: ${stats.compressedMessages}\n`);
 }
 
 export function printSessionInfo(info) {
@@ -185,6 +191,21 @@ export function printModelSwitched(model) {
 
 export function printAgentReply(model, response) {
   console.log(`[${model.id}] Agent: ${response}\n`);
+}
+
+export function printContextCompressed(result) {
+  console.log(
+    `上下文已压缩: ${result.sourceMessageCount} 条旧消息（约 ${result.sourceTokenCount} Token）` +
+      ` -> 1 条摘要，保留 ${result.retainedMessageCount} 条近期消息（约 ${result.retainedTokenCount} Token）。`,
+  );
+  console.log(`估算 Token: ${result.tokenCountBefore} -> ${result.tokenCountAfter}\n`);
+}
+
+export function printContextCompressionError(error) {
+  console.error(
+    `Context Compression Warning: ${error instanceof Error ? error.message : String(error)}`,
+  );
+  console.error('已保留原上下文，并继续处理当前问题。\n');
 }
 
 export function printAgentError(error) {

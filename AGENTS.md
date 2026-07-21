@@ -74,12 +74,15 @@
 - 已抽出基础系统提示词
 - 已建立最小 memory 模块
 - 已支持 memory 本地持久化
+- 已支持基于估算 Token 预算调用当前模型 API 压缩较早上下文
 - 支持从 `agent.json` / `soul.md` 加载用户自定义 prompt
 - core、loop 尚未正式实现
 
 当前文件：
 
 - `src/agent/memory.js`
+- `src/agent/context-compressor.js`
+- `src/agent/token-estimator.js`
 - `src/agent/prompts.js`
 - `src/agent/session-store.js`
 
@@ -94,12 +97,12 @@
 
 当前状态：
 
-- 目录已建立
+- 目录已建立并保留职责说明
 - 工具系统尚未正式实现
 
-预留目录：
+当前文件：
 
-- `src/tools/`
+- `src/tools/README.md`
 
 ## 当前已完成能力
 
@@ -143,14 +146,15 @@
 - 已提供初始 system message 创建入口
 - 支持用户通过 `agent.json` / `soul.md` 自定义 prompt
 - 已建立短期消息 memory 模块
-- 已支持 memory 最大消息数裁剪
+- 已支持基于估算 Token 管理 memory，并以最大消息数裁剪作为兜底
+- 已支持达到 Token 阈值后通过 AI 摘要压缩较早上下文
 - 已支持本地会话保存、恢复和自动保存
 
 ### 阶段进度
 
 - Phase 0 已完成
 - Phase 1 核心闭环已完成
-- Phase 2 已开始，当前重点是 memory 测试与可靠性
+- Phase 2 进行中，AI 上下文压缩已完成，当前重点是继续补齐 memory 与 session 测试
 
 ## 推荐开发原则
 
@@ -256,9 +260,9 @@
 ## 当前约束
 
 - 目前核心能力仍聚焦在 CLI 与 LLM 接入层
-- `src/agent/` 目前已有 prompts、memory、session-store 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
+- `src/agent/` 目前已有 prompts、memory、token-estimator、context-compressor、session-store 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
 - `src/tools/` 仍是后续阶段能力
-- 还没有正式引入测试用例
+- 已使用 Node.js 内置 `node:test` 建立最小测试，当前覆盖上下文压缩与 Token 估算关键行为
 - 还没有实现工具调用和任务循环
 
 ## 文档使用方式

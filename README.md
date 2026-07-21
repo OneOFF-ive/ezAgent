@@ -15,7 +15,8 @@
 - 命令行交互式 CLI
 - 启动时支持创建新对话或选择已有会话继续
 - 支持多轮上下文对话
-- 支持 memory 最大消息数裁剪
+- 支持基于估算 Token 预算管理 memory，并保留最大消息数裁剪作为兜底
+- 支持达到 Token 阈值后调用当前模型压缩较早上下文
 - 支持本地会话保存、恢复和自动保存
 - 支持动态切换模型并保留上下文
 - 支持多模型注册
@@ -47,7 +48,7 @@ cp soul.example.md soul.md
 配置约定：
 
 - `.env`
-  保存系统级配置，例如运行环境、代理、默认参数、用户配置文件路径
+  保存系统级配置，例如运行环境、代理、默认参数、上下文压缩和用户配置文件路径
 - `user-config.json`
   保存用户模型配置，例如默认模型、多个自定义模型
 - `agent.json`
@@ -82,6 +83,21 @@ CLI 启动后常用命令：
 npm run validate
 ```
 
+### 上下文压缩配置
+
+AI 上下文压缩默认开启，并复用当前激活模型及其 API 配置：
+
+- `MEMORY_MAX_TOKENS`
+  memory 的估算 Token 预算，默认 `12000`
+- `MEMORY_COMPRESSION_ENABLED`
+  是否启用 AI 压缩，默认 `true`
+- `MEMORY_MAX_MESSAGES`
+  最大消息数安全上限，默认 `100`，只作为异常兜底
+
+程序会在估算 Token 达到 `MEMORY_MAX_TOKENS` 的 80% 时触发压缩，并按 Token 从后向前保留约 30% 的近期原始消息。较早消息会被发送给当前模型生成摘要，原始 system prompt、摘要和近期消息继续参与正常回答。如果压缩请求失败，程序会保留原上下文并继续对话。
+
+当前 Token 数由内置通用估算器计算：ASCII 文本约按 4 个字符 1 Token，非 ASCII 字符按 1 个字符 1 Token，并包含每条消息的固定开销。它适合跨模型的近似预算控制，但不等同于供应商官方 tokenizer 的精确计数。
+
 ## 目录结构
 
 ```text
@@ -103,10 +119,12 @@ ezAgent/
 ├── src/
 │   ├── index.js
 │   ├── agent/
+│   │   ├── context-compressor.js
 │   │   ├── memory.js
 │   │   ├── README.md
 │   │   ├── prompts.js
-│   │   └── session-store.js
+│   │   ├── session-store.js
+│   │   └── token-estimator.js
 │   ├── cli/
 │   │   ├── commands.js
 │   │   ├── state.js
@@ -123,11 +141,11 @@ ezAgent/
 │   │   ├── protocols.js
 │   │   └── request-config.js
 │   ├── tools/
-│   │   └── tools.js
-│   └── utils/
-│       └── utils.js
+│   │   └── README.md
 └── tests/
-    └── README.md
+    ├── context-compressor.test.js
+    ├── README.md
+    └── token-estimator.test.js
 ```
 
 ## 文件职责
@@ -195,11 +213,9 @@ ezAgent/
 ### 其他目录
 
 - `src/agent/`
-  Agent 核心层，目前包含系统提示词、短期 memory 和会话持久化模块
+  Agent 核心层，目前包含系统提示词、短期 memory、Token 估算、AI 上下文压缩和会话持久化模块
 - `src/tools/`
-  预留给工具系统
-- `src/utils/`
-  预留给通用工具函数
+  预留给工具系统，当前只保留职责说明，进入 Phase 3 后再创建实现模块
 - `docs/`
   项目过程文档
 - `tests/`
@@ -222,17 +238,17 @@ ezAgent/
 - `npm run check`
   运行 `lint + format:check`
 - `npm run validate`
-  当前阶段的一键自检入口
+  运行代码检查和自动化测试的一键自检入口
 
 ## 相关文档
 
 - 文档索引：
-  [docs/README.md](/root/ezAgent/docs/README.md)
+  [docs/README.md](docs/README.md)
 - 学习计划与阶段规划：
-  [docs/learning-plan.md](/root/ezAgent/docs/learning-plan.md)
+  [docs/learning-plan.md](docs/learning-plan.md)
 - 下一步建议：
-  [docs/next-actions.md](/root/ezAgent/docs/next-actions.md)
+  [docs/next-actions.md](docs/next-actions.md)
 - Agent 架构说明：
-  [AGENTS.md](/root/ezAgent/AGENTS.md)
+  [AGENTS.md](AGENTS.md)
 - LLM 接入层说明：
-  [src/llm/README.md](/root/ezAgent/src/llm/README.md)
+  [src/llm/README.md](src/llm/README.md)

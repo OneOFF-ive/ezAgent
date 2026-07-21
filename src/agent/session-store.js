@@ -101,7 +101,3 @@ export function listSessions(sessionDir) {
     })
     .sort((a, b) => a.sessionId.localeCompare(b.sessionId));
 }
-
-export function getSessionFilePath(sessionDir, sessionId) {
-  return sessionFilePath(sessionDir, sessionId);
-}

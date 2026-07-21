@@ -73,20 +73,15 @@ function handleSessionCommand(trimmed, state) {
     return true;
   }
 
-  if (trimmed === '/sessions' || trimmed === '/session list') {
+  if (trimmed === '/session list') {
     safelyRunCommand(() => {
       printSavedSessions(listSavedSessions(state), state.activeSession);
     });
     return true;
   }
 
-  if (trimmed === '/load' || trimmed === '/session load') {
+  if (trimmed === '/session load') {
     printSessionLoadUsage();
-    return true;
-  }
-
-  if (trimmed.startsWith('/load ')) {
-    safelyRunCommand(() => loadSessionById(state, commandArgument(trimmed, '/load')));
     return true;
   }
 
@@ -104,18 +99,13 @@ function handleModelCommand(trimmed, state) {
     return true;
   }
 
-  if (trimmed === '/models' || trimmed === '/model list') {
+  if (trimmed === '/model list') {
     printRegisteredModels(state.currentModelId, getModelById);
     return true;
   }
 
   if (trimmed === '/model switch') {
     printModelSwitchUsage();
-    return true;
-  }
-
-  if (trimmed.startsWith('/switch ')) {
-    switchModelById(state, commandArgument(trimmed, '/switch'));
     return true;
   }
 

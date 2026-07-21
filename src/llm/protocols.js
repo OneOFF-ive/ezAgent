@@ -4,7 +4,7 @@ export const LLM_PROTOCOLS = {
   ANTHROPIC_MESSAGES: 'anthropic-messages',
 };
 
-export function normalizeMessagesForAnthropic(messages) {
+function normalizeMessagesForAnthropic(messages) {
   const systemParts = [];
   const anthropicMessages = [];
 

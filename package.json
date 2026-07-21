@@ -6,13 +6,13 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "echo \"No tests yet\"",
+    "test": "node --test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "check": "npm run lint && npm run format:check",
-    "validate": "npm run check"
+    "validate": "npm run check && npm test"
   },
   "author": "",
   "license": "ISC",

@@ -15,7 +15,7 @@ export function loadUserConfig(configPath) {
   return readJsonFile(filePath);
 }
 
-export function saveUserConfig(configPath, config) {
+function saveUserConfig(configPath, config) {
   const filePath = resolveUserConfigPath(configPath);
   fs.writeFileSync(filePath, `${JSON.stringify(config, null, 2)}\n`);
 }

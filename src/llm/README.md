@@ -94,9 +94,6 @@
 最小系统级配置示例：
 
 ```env
-NODE_ENV=development
-PORT=3000
-LOG_LEVEL=debug
 HTTP_PROXY_URL=http://127.0.0.1:7890
 USER_CONFIG_PATH=./user-config.json
 LLM_TEMPERATURE=0.7

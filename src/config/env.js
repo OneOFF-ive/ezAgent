@@ -19,9 +19,21 @@ function toPositiveInteger(value, fallback, minimum = 1) {
   return Math.max(Math.floor(num), minimum);
 }
 
+function toBoolean(value, fallback) {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+
+  return !['false', '0', 'no', 'off'].includes(String(value).trim().toLowerCase());
+}
+
 const userConfigPath = process.env.USER_CONFIG_PATH || './user-config.json';
 const agentConfigPath = process.env.AGENT_CONFIG_PATH || './agent.json';
 const agent = resolveAgentConfig(agentConfigPath);
+const memoryMaxMessages = toPositiveInteger(process.env.MEMORY_MAX_MESSAGES, 100, 2);
+const memoryMaxTokens = toPositiveInteger(process.env.MEMORY_MAX_TOKENS, 12000, 100);
+const compressionThresholdTokens = Math.floor(memoryMaxTokens * 0.8);
+const compressionKeepRecentTokens = Math.floor(memoryMaxTokens * 0.3);
 const llm = resolveLlmConfig(userConfigPath, {
   temperature: process.env.LLM_TEMPERATURE,
   maxTokens: process.env.LLM_MAX_TOKENS,
@@ -30,17 +42,18 @@ const llm = resolveLlmConfig(userConfigPath, {
 });
 
 export const env = {
-  nodeEnv: process.env.NODE_ENV || 'development',
-  port: toNumber(process.env.PORT, 3000),
-  logLevel: process.env.LOG_LEVEL || 'debug',
-  maxSteps: toNumber(process.env.MAX_STEPS, 5),
   httpProxyUrl: process.env.HTTP_PROXY_URL || null,
   userConfigPath,
-  agentConfigPath,
   agent,
   memory: {
-    maxMessages: toPositiveInteger(process.env.MEMORY_MAX_MESSAGES, 20, 2),
+    maxMessages: memoryMaxMessages,
+    maxTokens: memoryMaxTokens,
     sessionDir: process.env.MEMORY_SESSION_DIR || './data/sessions',
+    compression: {
+      enabled: toBoolean(process.env.MEMORY_COMPRESSION_ENABLED, true),
+      thresholdTokens: compressionThresholdTokens,
+      keepRecentTokens: compressionKeepRecentTokens,
+    },
   },
   llm,
 };

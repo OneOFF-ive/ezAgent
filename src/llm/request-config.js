@@ -6,7 +6,7 @@ import {
   endpointPathByProtocol,
 } from './protocols.js';
 
-export function resolveTargetModel(model) {
+function resolveTargetModel(model) {
   return model ?? env.llm.activeModel;
 }
 

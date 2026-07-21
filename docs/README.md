@@ -2,7 +2,7 @@
 
 这个目录用于存放项目过程文档，而不是项目的主说明。
 
-根目录 [README.md](/root/ezAgent/README.md) 负责回答：
+根目录 [README.md](../README.md) 负责回答：
 
 - 这个项目是什么
 - 现在能做什么
@@ -17,9 +17,9 @@
 
 ## 当前文档
 
-- [learning-plan.md](/root/ezAgent/docs/learning-plan.md)
+- [learning-plan.md](learning-plan.md)
   项目的学习目标、阶段规划、阶段待办和验收标准。
-- [next-actions.md](/root/ezAgent/docs/next-actions.md)
+- [next-actions.md](next-actions.md)
   当前最值得优先处理的下一步建议。
 
 ## 推荐放置内容
@@ -47,6 +47,4 @@
 
 ## 当前状态
 
-目前 `docs/` 目录还比较轻，主要承载学习计划。
-
-后续随着 `Phase 1` 到 `Phase 3` 推进，这里会逐步成为项目的过程知识库。
+目前项目处于 Phase 2，`docs/` 主要承载学习计划、近期建议和阶段进度。

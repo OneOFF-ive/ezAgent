@@ -7,6 +7,7 @@ import {
   appendAssistantMessage,
   appendUserMessage,
   autoSaveCurrentSession,
+  compressCurrentContext,
   createCliState,
   getCurrentModel,
   getMessages,
@@ -20,6 +21,8 @@ import {
   EXIT_COMMANDS,
   printAgentError,
   printAgentReply,
+  printContextCompressed,
+  printContextCompressionError,
   printExit,
   printSessionCreated,
   printSessionLoaded,
@@ -160,6 +163,20 @@ async function main() {
     try {
       const model = getCurrentModel(state);
       appendUserMessage(state, trimmed);
+
+      try {
+        const compression = await compressCurrentContext(state, (messages) =>
+          generateText(messages, model),
+        );
+
+        if (compression) {
+          printContextCompressed(compression);
+        }
+      } catch (error) {
+        // 压缩失败时保留原上下文，继续处理本轮正常对话。
+        printContextCompressionError(error);
+      }
+
       const response = await generateText(getMessages(state), model);
       appendAssistantMessage(state, response);
       printAgentReply(model, response);

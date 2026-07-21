@@ -2,7 +2,7 @@
 
 这个文档用于记录当前最值得做的下一步工作。
 
-它和 [learning-plan.md](/root/ezAgent/docs/learning-plan.md) 的区别：
+它和 [learning-plan.md](learning-plan.md) 的区别：
 
 - `learning-plan.md`
   记录长期阶段规划和验收标准。
@@ -31,6 +31,8 @@
 当前阶段：Phase 2
 
 建议先用 Node 内置 `node:test`，不用急着引入复杂测试框架。
+
+当前进展：测试入口已经建立，AI 上下文压缩和 Token 估算已有 5 个关键行为测试；下一步继续覆盖基础 memory 和持久化边界。
 
 优先测试：
 
@@ -62,6 +64,35 @@
 - 下一步增强可靠性会比继续拆文件更有收益。
 
 ## 最近完成
+
+### 清理项目冗余
+
+状态：已完成
+
+完成内容：
+
+- 删除未使用的 `src/utils/` 占位模块
+- 用 `src/tools/README.md` 替换无实现的工具代码占位文件
+- 移除未使用的运行配置、函数和多余导出
+- CLI 只保留 `/session ...` 与 `/model ...` 规范命令
+- 修正文档相对链接并移除重复的 Phase 1 Todo
+
+### 增加 AI 上下文压缩
+
+状态：已完成
+
+完成内容：
+
+- 新增 `src/agent/context-compressor.js`
+- 新增 `src/agent/token-estimator.js`
+- 使用 `MEMORY_MAX_TOKENS` 作为主要 memory 预算
+- 达到估算 Token 预算的 80% 后复用当前模型 API 生成较早对话摘要
+- 按 Token 预算保留原始 system prompt、AI 摘要和近期原始消息
+- 保留最大消息数裁剪作为异常兜底
+- 压缩失败时保留原上下文并继续正常对话
+- memory 快照新增压缩次数和累计压缩消息数
+- `/memory` 增加压缩配置与运行统计
+- 使用 `node:test` 增加上下文压缩与 Token 估算测试
 
 ### 抽出系统提示词
 
@@ -161,7 +192,7 @@
 
 - 会话命令统一为 `/session ...`
 - 模型命令统一为 `/model ...`
-- 保留 `/load`、`/sessions`、`/switch`、`/models` 作为兼容别名
+- 移除未正式发布的短命令别名，减少重复分支
 
 ### 优化 CLI 命令提示
 

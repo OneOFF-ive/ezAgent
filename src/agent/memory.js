@@ -1,8 +1,9 @@
 import { createSystemMessage } from './prompts.js';
+import { estimateMessageTokens, estimateMessagesTokens } from './token-estimator.js';
 
-const DEFAULT_MAX_MESSAGES = 20;
+const DEFAULT_MAX_MESSAGES = 100;
 const MIN_MAX_MESSAGES = 2;
-const SNAPSHOT_VERSION = 1;
+const SNAPSHOT_VERSION = 2;
 const MESSAGE_ROLES = new Set(['system', 'user', 'assistant', 'tool']);
 
 function normalizeMaxMessages(maxMessages) {
@@ -73,6 +74,8 @@ export function createMemory(options = {}) {
     maxMessages: normalizeMaxMessages(options.maxMessages),
     messages: [createSystemMessage()],
     trimmedMessages: 0,
+    compressionCount: 0,
+    compressedMessages: 0,
   };
 }
 
@@ -86,6 +89,8 @@ export function getMemoryStats(memory) {
     maxMessages: memory.maxMessages,
     conversationMessageCount: memory.messages.filter((message) => message.role !== 'system').length,
     trimmedMessages: memory.trimmedMessages,
+    compressionCount: memory.compressionCount,
+    compressedMessages: memory.compressedMessages,
   };
 }
 
@@ -95,6 +100,8 @@ export function createMemorySnapshot(memory) {
     maxMessages: memory.maxMessages,
     messages: memory.messages.map(cloneMessage),
     trimmedMessages: memory.trimmedMessages,
+    compressionCount: memory.compressionCount,
+    compressedMessages: memory.compressedMessages,
   };
 }
 
@@ -107,6 +114,8 @@ export function restoreMemory(snapshot, options = {}) {
     maxMessages: normalizeMaxMessages(options.maxMessages ?? snapshot.maxMessages),
     messages: normalizeSnapshotMessages(snapshot.messages),
     trimmedMessages: Number(snapshot.trimmedMessages) || 0,
+    compressionCount: Number(snapshot.compressionCount) || 0,
+    compressedMessages: Number(snapshot.compressedMessages) || 0,
   };
 
   trimMemory(memory);
@@ -128,9 +137,79 @@ export function appendAssistantMessage(memory, content) {
   return appendMessage(memory, 'assistant', content);
 }
 
+export function createCompressionCandidate(memory, keepRecentTokens) {
+  const normalizedKeepRecentTokens = Math.max(Math.floor(Number(keepRecentTokens)) || 1, 1);
+  const firstMessage = memory.messages[0];
+  const systemMessages = firstMessage?.role === 'system' ? [firstMessage] : [];
+  const conversationMessages =
+    firstMessage?.role === 'system' ? memory.messages.slice(1) : memory.messages;
+  let splitIndex = conversationMessages.length;
+  let retainedTokenCount = 0;
+
+  for (let index = conversationMessages.length - 1; index >= 0; index -= 1) {
+    const messageTokenCount = estimateMessageTokens(conversationMessages[index]);
+
+    if (
+      splitIndex < conversationMessages.length &&
+      retainedTokenCount + messageTokenCount > normalizedKeepRecentTokens
+    ) {
+      break;
+    }
+
+    splitIndex = index;
+    retainedTokenCount += messageTokenCount;
+  }
+
+  if (splitIndex === 0 || splitIndex === conversationMessages.length) {
+    return null;
+  }
+
+  const sourceMessages = conversationMessages.slice(0, splitIndex).map(cloneMessage);
+
+  return {
+    systemMessages: systemMessages.map(cloneMessage),
+    sourceMessages,
+    recentMessages: conversationMessages.slice(splitIndex).map(cloneMessage),
+    sourceTokenCount: estimateMessagesTokens(sourceMessages),
+    retainedTokenCount,
+  };
+}
+
+export function applyMemoryCompression(memory, candidate, summary) {
+  const normalizedSummary = typeof summary === 'string' ? summary.trim() : '';
+
+  if (!normalizedSummary) {
+    throw new Error('Context compression returned an empty summary.');
+  }
+
+  const summaryMessage = {
+    role: 'system',
+    content: `Earlier conversation summary:\n${normalizedSummary}`,
+  };
+
+  memory.messages = [
+    ...candidate.systemMessages.map(cloneMessage),
+    summaryMessage,
+    ...candidate.recentMessages.map(cloneMessage),
+  ];
+  memory.compressionCount += 1;
+  memory.compressedMessages += candidate.sourceMessages.length;
+  trimMemory(memory);
+
+  return {
+    sourceMessageCount: candidate.sourceMessages.length,
+    sourceTokenCount: candidate.sourceTokenCount,
+    retainedMessageCount: candidate.recentMessages.length,
+    retainedTokenCount: candidate.retainedTokenCount,
+    messageCount: memory.messages.length,
+  };
+}
+
 export function clearMemory(memory) {
   memory.messages = [createSystemMessage()];
   memory.trimmedMessages = 0;
+  memory.compressionCount = 0;
+  memory.compressedMessages = 0;
 }
 
 export function rollbackLastUserMessage(memory) {

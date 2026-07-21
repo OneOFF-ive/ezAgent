@@ -12,6 +12,8 @@ import {
   rollbackLastUserMessage as rollbackMemoryLastUserMessage,
 } from '../agent/memory.js';
 import { listSessions, loadSession, saveSession } from '../agent/session-store.js';
+import { compressMemoryContext } from '../agent/context-compressor.js';
+import { estimateMessagesTokens } from '../agent/token-estimator.js';
 
 function createInitialMemory() {
   return {
@@ -27,6 +29,8 @@ export function createCliState() {
   return {
     agent: env.agent,
     memory: initialMemory.memory,
+    memoryMaxTokens: env.memory.maxTokens,
+    memoryCompression: env.memory.compression,
     sessionDir: env.memory.sessionDir,
     activeSession: null,
     lastSavedAt: initialMemory.lastSavedAt,
@@ -40,7 +44,14 @@ export function getMessages(state) {
 }
 
 export function getMemoryStats(state) {
-  return getAgentMemoryStats(state.memory);
+  return {
+    ...getAgentMemoryStats(state.memory),
+    estimatedTokens: estimateMessagesTokens(getMemoryMessages(state.memory)),
+    maxTokens: state.memoryMaxTokens,
+    compressionEnabled: state.memoryCompression.enabled,
+    compressionThresholdTokens: state.memoryCompression.thresholdTokens,
+    compressionKeepRecentTokens: state.memoryCompression.keepRecentTokens,
+  };
 }
 
 export function getSessionInfo(state) {
@@ -59,6 +70,13 @@ export function appendUserMessage(state, content) {
 
 export function appendAssistantMessage(state, content) {
   return appendMemoryAssistantMessage(state.memory, content);
+}
+
+export function compressCurrentContext(state, summarize) {
+  return compressMemoryContext(state.memory, {
+    ...state.memoryCompression,
+    summarize,
+  });
 }
 
 export function getModelById(modelId) {
@@ -84,7 +102,7 @@ export function rollbackLastUserMessage(state) {
   rollbackMemoryLastUserMessage(state.memory);
 }
 
-export function saveCurrentSession(state, sessionId = state.activeSession) {
+function saveCurrentSession(state, sessionId = state.activeSession) {
   if (!sessionId) {
     throw new Error('No active session. Please create or load a session first.');
   }
