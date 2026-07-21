@@ -164,7 +164,8 @@
 - Phase 1 核心闭环已完成
 - Phase 2 与 M2 已完成，memory、上下文压缩和 session 持久化关键边界已有自动化测试
 - LLM 请求稳定性补强已完成
-- 当前重点是补齐配置与协议测试，再进入 Phase 3 工具系统
+- 配置、三种协议和规范 CLI 命令分发测试已补齐
+- Phase 3 已开始，当前重点是定义最小 Tool 接口
 
 ## 推荐开发原则
 
@@ -272,7 +273,7 @@
 - 目前核心能力仍聚焦在 CLI 与 LLM 接入层
 - `src/agent/` 目前已有 prompts、memory、token-estimator、context-compressor、session-store 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
 - `src/tools/` 仍是后续阶段能力
-- 已使用 Node.js 内置 `node:test` 覆盖 memory、上下文压缩、Token 估算、session-store 与 LLM Client 关键行为
+- 已使用 Node.js 内置 `node:test` 覆盖 memory、上下文压缩、Token 估算、session-store、LLM Client、模型配置、协议与 CLI 命令分发
 - 还没有实现工具调用和任务循环
 
 ## 文档使用方式

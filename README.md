@@ -154,10 +154,15 @@ ezAgent/
 │   │   └── request-config.js
 │   ├── tools/
 │   │   └── README.md
+├── test-support/
+│   └── temp-dir.js
 └── tests/
+    ├── commands.test.js
     ├── context-compressor.test.js
     ├── llm-client.test.js
+    ├── llm-config.test.js
     ├── memory.test.js
+    ├── protocols.test.js
     ├── README.md
     ├── session-store.test.js
     └── token-estimator.test.js

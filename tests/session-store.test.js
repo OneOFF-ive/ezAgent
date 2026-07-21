@@ -1,26 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { listSessions, loadSession, saveSession } from '../src/agent/session-store.js';
-
-function createTempSessionDir(t) {
-  const tempRoot = path.resolve(os.tmpdir());
-  const sessionDir = fs.mkdtempSync(path.join(tempRoot, 'ezagent-session-test-'));
-
-  t.after(() => {
-    const resolvedSessionDir = path.resolve(sessionDir);
-
-    if (!resolvedSessionDir.startsWith(`${tempRoot}${path.sep}`)) {
-      throw new Error(`Refusing to remove unexpected test directory: ${resolvedSessionDir}`);
-    }
-
-    fs.rmSync(resolvedSessionDir, { recursive: true, force: true });
-  });
-
-  return sessionDir;
-}
+import { createTempDir } from '../test-support/temp-dir.js';
 
 function createSnapshot(content = 'hello') {
   return {
@@ -37,7 +20,7 @@ function createSnapshot(content = 'hello') {
 }
 
 test('saves and loads a session snapshot', (t) => {
-  const sessionDir = createTempSessionDir(t);
+  const sessionDir = createTempDir(t, 'ezagent-session-test-');
   const snapshot = createSnapshot();
   const saved = saveSession(sessionDir, 'chat-1', snapshot);
   const loaded = loadSession(sessionDir, 'chat-1');
@@ -51,7 +34,7 @@ test('saves and loads a session snapshot', (t) => {
 });
 
 test('lists JSON sessions by id and ignores unrelated entries', (t) => {
-  const sessionDir = createTempSessionDir(t);
+  const sessionDir = createTempDir(t, 'ezagent-session-test-');
   saveSession(sessionDir, 'session-b', createSnapshot('b'));
   saveSession(sessionDir, 'session-a', createSnapshot('a'));
   fs.writeFileSync(path.join(sessionDir, 'notes.txt'), 'ignored');
@@ -70,7 +53,7 @@ test('lists JSON sessions by id and ignores unrelated entries', (t) => {
 });
 
 test('returns empty results for missing sessions and directories', (t) => {
-  const sessionDir = createTempSessionDir(t);
+  const sessionDir = createTempDir(t, 'ezagent-session-test-');
   const missingDir = path.join(sessionDir, 'missing');
 
   assert.equal(loadSession(sessionDir, 'missing-session'), null);
@@ -78,7 +61,7 @@ test('returns empty results for missing sessions and directories', (t) => {
 });
 
 test('rejects invalid session ids', (t) => {
-  const sessionDir = createTempSessionDir(t);
+  const sessionDir = createTempDir(t, 'ezagent-session-test-');
   const invalidIds = ['', '../escape', 'space id', '/absolute'];
 
   for (const sessionId of invalidIds) {
@@ -91,7 +74,7 @@ test('rejects invalid session ids', (t) => {
 });
 
 test('rejects malformed session files', (t) => {
-  const sessionDir = createTempSessionDir(t);
+  const sessionDir = createTempDir(t, 'ezagent-session-test-');
 
   fs.writeFileSync(path.join(sessionDir, 'broken.json'), '{not-json');
   fs.writeFileSync(path.join(sessionDir, 'array.json'), '[]');

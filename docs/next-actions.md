@@ -24,27 +24,40 @@
 
 ## 当前建议
 
-### 1. 补充配置与协议测试
+### 1. 设计最小 Tool 接口
 
 优先级：高
 
-当前阶段：Phase 3 准备
+当前阶段：Phase 3
 
-在 Memory 与 Session 测试完成后，继续覆盖：
+只定义 Tool 的基础契约，暂不实现 Agent Loop：
 
-- `src/config/llm-config.js`
-- `src/llm/protocols.js`
-- `src/cli/commands.js`
+- 名称与说明
+- 参数结构和校验结果
+- 异步执行入口
+- 成功与失败结果结构
 
-重点验证非法模型配置、三种协议的请求与响应映射，以及规范 CLI 命令分发。
+先用一个简单本地工具验证接口，例如回显文本或读取当前时间。
 
-### 2. 设计最小 Tool 接口
+### 2. 实现最小工具注册表
 
 优先级：中
 
-配置与协议测试完成后，进入 Phase 3 的第一个小步：只定义 Tool 的名称、描述、参数校验和执行结果结构，暂不实现 Agent Loop。
+Tool 接口稳定后，再实现注册、按名称查找、重复名称拒绝和统一执行入口。
 
 ## 最近完成
+
+### 补充配置、协议与 CLI 测试
+
+状态：已完成
+
+完成内容：
+
+- 新增 `tests/llm-config.test.js`，覆盖默认值、覆盖值和非法配置
+- 新增 `tests/protocols.test.js`，覆盖三种协议的请求与响应映射
+- 新增 `tests/commands.test.js`，覆盖规范命令和旧别名拒绝
+- 临时配置和 Session 测试统一复用 `test-support/temp-dir.js`
+- 自动化测试由 21 个增加到 34 个
 
 ### 优化 LLM 请求稳定性
 
