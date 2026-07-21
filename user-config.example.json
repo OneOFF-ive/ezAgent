@@ -1,0 +1,25 @@
+{
+  "activeModelId": "my_code",
+  "models": {
+    "my_openai": {
+      "protocol": "openai-responses",
+      "baseUrl": "https://api.openai.com/v1",
+      "apiKey": "your_openai_api_key_here",
+      "model": "gpt-4o-mini"
+    },
+    "my_code": {
+      "protocol": "openai-completions",
+      "baseUrl": "https://ark.cn-beijing.volces.com/api/coding/v3",
+      "apiKey": "your_volcengine_api_key_here",
+      "model": "ark-code-latest"
+    },
+    "my_claude": {
+      "protocol": "anthropic-messages",
+      "baseUrl": "https://api.anthropic.com/v1",
+      "apiKey": "your_anthropic_api_key_here",
+      "model": "claude-sonnet-4-20250514",
+      "anthropicVersion": "2023-06-01",
+      "maxTokens": 1024
+    }
+  }
+}

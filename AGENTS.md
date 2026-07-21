@@ -1,0 +1,273 @@
+# AGENTS.md
+
+## 项目定位
+
+这是一个面向学习和实践的 Node.js AI Agent 项目。
+
+当前重点不是一次性实现完整 Agent，而是通过可运行的小步迭代，逐步搭建：
+
+- CLI 交互层
+- 配置层
+- LLM 接入层
+- 记忆层
+- 后续的工具和任务执行层
+
+## 当前架构
+
+### 1. Interface Layer
+
+职责：
+
+- 负责 CLI 交互
+- 管理用户输入与命令分发
+- 输出模型回复和运行信息
+
+当前文件：
+
+- `src/index.js`
+- `src/cli/commands.js`
+- `src/cli/state.js`
+- `src/cli/view.js`
+
+### 2. Config Layer
+
+职责：
+
+- 读取系统级配置
+- 读取用户模型配置
+- 读取 Agent 与 Soul 配置
+- 解析激活模型和模型注册表
+
+当前文件：
+
+- `src/config/agent-config.js`
+- `src/config/env.js`
+- `src/config/llm-config.js`
+- `src/config/user-config.js`
+
+### 3. Model Layer
+
+职责：
+
+- 适配多种 LLM 协议
+- 生成请求配置
+- 发起模型请求
+- 统一错误处理
+
+当前文件：
+
+- `src/llm/client.js`
+- `src/llm/request-config.js`
+- `src/llm/errors.js`
+- `src/llm/protocols.js`
+
+### 4. Agent Layer
+
+职责：
+
+- 组合模型、记忆和工具
+- 管理任务执行过程
+- 决定何时继续、何时结束
+
+当前状态：
+
+- 已抽出基础系统提示词
+- 已建立最小 memory 模块
+- 已支持 memory 本地持久化
+- 支持从 `agent.json` / `soul.md` 加载用户自定义 prompt
+- core、loop 尚未正式实现
+
+当前文件：
+
+- `src/agent/memory.js`
+- `src/agent/prompts.js`
+- `src/agent/session-store.js`
+
+### 5. Tool Layer
+
+职责：
+
+- 注册工具
+- 校验参数
+- 执行工具
+- 回传工具结果
+
+当前状态：
+
+- 目录已建立
+- 工具系统尚未正式实现
+
+预留目录：
+
+- `src/tools/`
+
+## 当前已完成能力
+
+### CLI
+
+- 支持连续对话
+- 支持多轮上下文
+- 支持启动时创建新对话或选择已有会话继续
+- 支持 `/help`
+- 支持 `/menu`
+- 支持 `/agent`
+- 支持 `/memory`
+- 支持 `/model`
+- 支持 `/model list`
+- 支持 `/model switch <id>`
+- 支持 `/session`
+- 支持 `/session list`
+- 支持 `/session load <id>`
+- 支持 `/clear`
+- 支持 `exit / quit`
+
+### LLM 接入
+
+当前支持三种协议：
+
+- `openai-responses`
+- `openai-completions`
+- `anthropic-messages`
+
+### 配置系统
+
+- `.env` 保存系统级配置
+- `user-config.json` 保存用户模型配置
+- 支持多个模型注册
+- 支持默认激活模型
+- 支持切换模型后持久化激活模型
+
+### Agent 层
+
+- 已抽出默认系统提示词
+- 已提供初始 system message 创建入口
+- 支持用户通过 `agent.json` / `soul.md` 自定义 prompt
+- 已建立短期消息 memory 模块
+- 已支持 memory 最大消息数裁剪
+- 已支持本地会话保存、恢复和自动保存
+
+### 阶段进度
+
+- Phase 0 已完成
+- Phase 1 核心闭环已完成
+- Phase 2 已开始，当前重点是 memory 测试与可靠性
+
+## 推荐开发原则
+
+### 程序改动同步计划文档
+
+每次修改程序代码时，都需要同步检查计划文档是否需要更新。
+
+默认检查范围：
+
+- `docs/learning-plan.md`
+  更新阶段进度、Todo、验收标准或下一步计划。
+- `docs/next-actions.md`
+  更新近期建议、优先级和建议完成状态。
+- `AGENTS.md`
+  当模块边界、架构职责或开发约定变化时同步更新。
+- `README.md`
+  当启动方式、目录结构、配置方式或用户可见能力变化时同步更新。
+
+同步规则：
+
+- 如果代码改动影响当前阶段进度，更新 `docs/learning-plan.md`。
+- 如果给出新的下一步建议，或建议优先级发生变化，更新 `docs/next-actions.md`。
+- 如果某条建议已经完成或不再适合，从 `docs/next-actions.md` 中更新状态或移除。
+- 如果代码改动新增、删除或重命名模块，更新 `AGENTS.md` 和必要的 README 目录说明。
+- 如果只是纯内部重构，但不改变计划状态，也要在最终说明中明确“计划文档无需更新”的判断。
+- 不把详细开发计划塞回根 README；根 README 只保留项目说明和文档入口。
+
+### 保持小步迭代
+
+每次只增加一个可验证能力，例如：
+
+- 先打磨 CLI
+- 再引入记忆
+- 再引入工具
+- 最后做执行循环
+
+### 保持模块单一职责
+
+避免把这些逻辑重新堆回一个文件里：
+
+- CLI 命令处理
+- 配置解析
+- LLM 请求配置
+- 错误处理
+- Agent loop
+
+### 先跑通，再优化
+
+优先保证：
+
+- 能运行
+- 能观察
+- 能解释
+
+然后再继续：
+
+- 收敛重复逻辑
+- 优化模块边界
+- 增强功能能力
+
+## 里程碑定义
+
+### M1: Chat Agent
+
+能力：
+
+- 用户输入问题
+- Agent 调用模型
+- 返回文本结果
+- 支持多轮 CLI 对话
+
+### M2: Memory Agent
+
+能力：
+
+- 显式管理历史消息
+- 支持上下文裁剪
+- 支持持久化会话
+
+### M3: Tool Agent
+
+能力：
+
+- 能调用本地工具
+- 能把工具结果继续交给模型处理
+
+### M4: Task Agent
+
+能力：
+
+- 执行多步骤任务
+- 具备基础 loop
+
+### M5: Reliable Agent
+
+能力：
+
+- 日志
+- 测试
+- 错误分类
+- 更稳定的配置和调试能力
+
+## 当前约束
+
+- 目前核心能力仍聚焦在 CLI 与 LLM 接入层
+- `src/agent/` 目前已有 prompts、memory、session-store 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
+- `src/tools/` 仍是后续阶段能力
+- 还没有正式引入测试用例
+- 还没有实现工具调用和任务循环
+
+## 文档使用方式
+
+这个文件用于记录：
+
+- 当前实际架构
+- 模块边界
+- 已完成能力
+- 后续实现方向
+
+当代码结构发生明显变化时，优先同步更新这里，确保文档始终反映当前真实状态。
