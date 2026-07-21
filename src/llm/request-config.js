@@ -10,12 +10,16 @@ function resolveTargetModel(model) {
   return model ?? env.llm.activeModel;
 }
 
-function createDispatcher() {
+let proxyDispatcher;
+
+function getDispatcher() {
   if (!env.httpProxyUrl) {
     return undefined;
   }
 
-  return new ProxyAgent(env.httpProxyUrl);
+  // ProxyAgent 内部维护连接池；进程内复用可以避免每次 LLM 请求重复创建连接资源。
+  proxyDispatcher ??= new ProxyAgent(env.httpProxyUrl);
+  return proxyDispatcher;
 }
 
 export function buildRequestConfig(messages, targetModel) {
@@ -25,7 +29,7 @@ export function buildRequestConfig(messages, targetModel) {
     model,
     requestUrl: `${model.baseUrl}${endpointPathByProtocol(model.protocol)}`,
     fetchOptions: {
-      dispatcher: createDispatcher(),
+      dispatcher: getDispatcher(),
       method: 'POST',
       headers: buildHeadersByProtocol(model.protocol, model),
       body: JSON.stringify(buildRequestBodyByProtocol(model.protocol, model, messages)),

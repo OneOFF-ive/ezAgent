@@ -20,6 +20,7 @@
 - 支持本地会话保存、恢复和自动保存
 - 支持动态切换模型并保留上下文
 - 支持多模型注册
+- 支持 LLM 请求超时、可选重试、网络错误分类和代理连接复用
 - 支持三种协议：
   - `openai-responses`
   - `openai-completions`
@@ -98,6 +99,17 @@ AI 上下文压缩默认开启，并复用当前激活模型及其 API 配置：
 
 当前 Token 数由内置通用估算器计算：ASCII 文本约按 4 个字符 1 Token，非 ASCII 字符按 1 个字符 1 Token，并包含每条消息的固定开销。它适合跨模型的近似预算控制，但不等同于供应商官方 tokenizer 的精确计数。
 
+### LLM 请求稳定性配置
+
+- `LLM_REQUEST_TIMEOUT_MS`
+  单次请求超时时间，默认 `30000`
+- `LLM_MAX_RETRIES`
+  首次请求失败后的最大重试次数，默认 `1`；设为 `0` 可关闭重试
+- `LLM_RETRY_DELAY_MS`
+  首次重试等待时间，默认 `500`，后续按指数退避，最多等待 30 秒
+
+只有网络错误、超时、HTTP 408、普通 429 和 5xx 会重试。认证失败、参数错误和额度不足不会重试。网络中断可能发生在服务端已经接收请求之后，因此开启重试时仍存在重复生成或重复计费的可能。
+
 ## 目录结构
 
 ```text
@@ -144,7 +156,10 @@ ezAgent/
 │   │   └── README.md
 └── tests/
     ├── context-compressor.test.js
+    ├── llm-client.test.js
+    ├── memory.test.js
     ├── README.md
+    ├── session-store.test.js
     └── token-estimator.test.js
 ```
 
@@ -200,9 +215,9 @@ ezAgent/
 ### `src/llm/`
 
 - `client.js`
-  LLM 请求主流程入口
+  LLM 请求主流程入口，负责超时、重试和网络错误分类
 - `request-config.js`
-  生成请求 URL 与 `fetch` 参数
+  生成请求 URL 与 `fetch` 参数，并复用代理 dispatcher
 - `errors.js`
   解析接口错误并构造统一错误对象
 - `protocols.js`

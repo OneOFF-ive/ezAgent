@@ -19,6 +19,16 @@ function toPositiveInteger(value, fallback, minimum = 1) {
   return Math.max(Math.floor(num), minimum);
 }
 
+function toNonNegativeInteger(value, fallback) {
+  const num = toNumber(value, fallback);
+
+  if (!Number.isFinite(num) || num < 0) {
+    return fallback;
+  }
+
+  return Math.floor(num);
+}
+
 function toBoolean(value, fallback) {
   if (value === undefined || value === null || value === '') {
     return fallback;
@@ -55,5 +65,13 @@ export const env = {
       keepRecentTokens: compressionKeepRecentTokens,
     },
   },
-  llm,
+  llm: {
+    ...llm,
+    request: {
+      timeoutMs: toPositiveInteger(process.env.LLM_REQUEST_TIMEOUT_MS, 30000, 100),
+      // 这里记录的是“额外重试次数”，0 表示只执行首次请求。
+      maxRetries: toNonNegativeInteger(process.env.LLM_MAX_RETRIES, 1),
+      retryDelayMs: toNonNegativeInteger(process.env.LLM_RETRY_DELAY_MS, 500),
+    },
+  },
 };

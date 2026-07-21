@@ -45,7 +45,10 @@
 职责：
 
 - 调用请求配置模块生成请求参数
-- 发起 HTTP 请求
+- 为每次 HTTP 请求设置独立超时
+- 对网络错误、408、普通 429 和 5xx 执行可选重试
+- 使用指数退避控制重试间隔
+- 区分超时、网络错误和 API 错误
 - 调用错误模块处理失败响应
 - 调用协议模块提取统一文本结果
 
@@ -63,7 +66,7 @@
 - 解析目标模型
 - 拼接完整请求地址
 - 生成 `fetch` 所需参数
-- 处理代理 dispatcher
+- 创建并复用代理 dispatcher
 
 ### `errors.js`
 
@@ -98,8 +101,22 @@ HTTP_PROXY_URL=http://127.0.0.1:7890
 USER_CONFIG_PATH=./user-config.json
 LLM_TEMPERATURE=0.7
 LLM_MAX_TOKENS=1024
+LLM_REQUEST_TIMEOUT_MS=30000
+LLM_MAX_RETRIES=1
+LLM_RETRY_DELAY_MS=500
 ANTHROPIC_VERSION=2023-06-01
 ```
+
+请求稳定性配置：
+
+- `LLM_REQUEST_TIMEOUT_MS`
+  每次请求尝试的超时时间
+- `LLM_MAX_RETRIES`
+  首次失败后的最大重试次数，设为 `0` 可关闭
+- `LLM_RETRY_DELAY_MS`
+  指数退避的初始等待时间，最大等待 30 秒
+
+重试只用于可能恢复的失败：网络错误、超时、HTTP 408、普通 429 和 5xx。401、其他 4xx 和 `insufficient_quota` 不会重试。
 
 ### `user-config.json`
 
@@ -163,10 +180,11 @@ ANTHROPIC_VERSION=2023-06-01
 3. 解析 `models` 注册表
 4. 根据 `activeModelId` 选出当前激活模型
 5. `request-config.js` 生成请求 URL 和 `fetch` 参数
-6. `client.js` 发起请求
-7. `errors.js` 负责失败响应解析
-8. `protocols.js` 负责协议差异处理和文本提取
-9. 返回统一纯文本结果
+6. `client.js` 为当前尝试创建超时信号并发起请求
+7. `errors.js` 解析失败响应并标记是否可重试
+8. `client.js` 按配置决定结束或指数退避后重试
+9. `protocols.js` 负责协议差异处理和文本提取
+10. 返回统一纯文本结果
 
 ## 扩展建议
 

@@ -132,6 +132,14 @@
 - `openai-completions`
 - `anthropic-messages`
 
+可靠性能力：
+
+- 支持单次请求超时
+- 支持可配置重试次数和指数退避
+- 只重试网络错误、超时、408、普通 429 和 5xx
+- 支持清晰区分认证、额度、服务端、超时和网络错误
+- 支持复用代理 dispatcher
+
 ### 配置系统
 
 - `.env` 保存系统级配置
@@ -154,7 +162,9 @@
 
 - Phase 0 已完成
 - Phase 1 核心闭环已完成
-- Phase 2 进行中，AI 上下文压缩已完成，当前重点是继续补齐 memory 与 session 测试
+- Phase 2 与 M2 已完成，memory、上下文压缩和 session 持久化关键边界已有自动化测试
+- LLM 请求稳定性补强已完成
+- 当前重点是补齐配置与协议测试，再进入 Phase 3 工具系统
 
 ## 推荐开发原则
 
@@ -262,7 +272,7 @@
 - 目前核心能力仍聚焦在 CLI 与 LLM 接入层
 - `src/agent/` 目前已有 prompts、memory、token-estimator、context-compressor、session-store 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
 - `src/tools/` 仍是后续阶段能力
-- 已使用 Node.js 内置 `node:test` 建立最小测试，当前覆盖上下文压缩与 Token 估算关键行为
+- 已使用 Node.js 内置 `node:test` 覆盖 memory、上下文压缩、Token 估算、session-store 与 LLM Client 关键行为
 - 还没有实现工具调用和任务循环
 
 ## 文档使用方式
