@@ -1,12 +1,26 @@
 # Tool 层说明
 
-这个目录预留给后续工具系统。
+这个目录保存 Agent 可调用的本地工具及其基础运行契约。
 
-计划职责：
+当前实现：
 
-- 定义 Tool 接口
-- 注册和查找工具
-- 校验调用参数
-- 执行工具并返回结果
+- `tool.js`
+  定义 Tool、参数校验、统一执行入口和接近 MCP 的 ToolResult 结构。
+- `builtins/echo.js`
+  无副作用的回显工具，用于验证最小本地 Tool 流程。
 
-当前尚未实现工具代码，进入 Phase 3 后再按实际边界创建模块。
+Tool 定义包含：
+
+- `name`
+- `description`
+- `inputSchema`
+- `execute(args, context)`
+
+统一 ToolResult 包含：
+
+- `content`
+- `structuredContent`（可选）
+- `isError`
+- `_meta`（可选）
+
+当前参数校验只实现顶层对象、必填字段、基础类型和额外字段限制，不等同于完整 JSON Schema 实现。工具注册表、模型协议映射和 Agent Loop 将在后续小步接入。

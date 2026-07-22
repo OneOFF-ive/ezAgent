@@ -24,28 +24,40 @@
 
 ## 当前建议
 
-### 1. 设计最小 Tool 接口
+### 1. 实现最小工具注册表
 
 优先级：高
 
 当前阶段：Phase 3
 
-只定义 Tool 的基础契约，暂不实现 Agent Loop：
+在现有 Tool 接口之上实现：
 
-- 名称与说明
-- 参数结构和校验结果
-- 异步执行入口
-- 成功与失败结果结构
+- 注册工具
+- 按名称查找工具
+- 拒绝重复名称
+- 通过注册表统一调用 `executeTool`
 
-先用一个简单本地工具验证接口，例如回显文本或读取当前时间。
+暂不接入模型协议，先通过注册和调用 `echo` 工具验证边界。
 
-### 2. 实现最小工具注册表
+### 2. 统一模型 Tool Call 数据结构
 
 优先级：中
 
-Tool 接口稳定后，再实现注册、按名称查找、重复名称拒绝和统一执行入口。
+注册表稳定后，定义内部 `id + name + arguments` 调用结构，再分别适配 OpenAI Responses、OpenAI Completions 和 Anthropic Messages。暂不在协议适配稳定前实现多步 Agent Loop。
 
 ## 最近完成
+
+### 定义最小 Tool 接口
+
+状态：已完成
+
+完成内容：
+
+- 新增 `src/tools/tool.js`，定义 Tool、基础参数校验和统一异步执行入口
+- ToolResult 使用接近 MCP 的 `content`、`structuredContent`、`isError` 和 `_meta`
+- 参数错误和执行异常统一转换为模型可观察的失败结果
+- 新增无副作用的 `src/tools/builtins/echo.js`
+- 新增 `tests/tool.test.js`，自动化测试由 34 个增加到 39 个
 
 ### 补充配置、协议与 CLI 测试
 

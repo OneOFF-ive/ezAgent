@@ -153,7 +153,10 @@ ezAgent/
 │   │   ├── protocols.js
 │   │   └── request-config.js
 │   ├── tools/
-│   │   └── README.md
+│   │   ├── builtins/
+│   │   │   └── echo.js
+│   │   ├── README.md
+│   │   └── tool.js
 ├── test-support/
 │   └── temp-dir.js
 └── tests/
@@ -165,7 +168,8 @@ ezAgent/
     ├── protocols.test.js
     ├── README.md
     ├── session-store.test.js
-    └── token-estimator.test.js
+    ├── token-estimator.test.js
+    └── tool.test.js
 ```
 
 ## 文件职责
@@ -235,7 +239,7 @@ ezAgent/
 - `src/agent/`
   Agent 核心层，目前包含系统提示词、短期 memory、Token 估算、AI 上下文压缩和会话持久化模块
 - `src/tools/`
-  预留给工具系统，当前只保留职责说明，进入 Phase 3 后再创建实现模块
+  Tool 层，当前包含基础接口、参数校验、统一结果和无副作用的本地 `echo` 工具；尚未接入模型 Tool Call
 - `docs/`
   项目过程文档
 - `tests/`

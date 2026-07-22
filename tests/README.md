@@ -21,8 +21,10 @@
 - 三种协议的 endpoint、headers、请求体和响应文本映射
 - Anthropic system message 归一化
 - 规范 CLI 命令分发、清空保存和旧别名拒绝
+- Tool 定义、基础参数校验、异步执行和统一结果
+- Tool 参数错误、执行异常和非法返回结果归一化
 
 后续优先补充的测试方向：
 
-- 工具注册与调用
+- 工具注册表和模型 Tool Call 映射
 - Agent loop 停止条件
