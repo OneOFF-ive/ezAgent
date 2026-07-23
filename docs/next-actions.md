@@ -24,28 +24,41 @@
 
 ## 当前建议
 
-### 1. 实现最小工具注册表
+### 1. 统一模型 Tool Call 数据结构
 
 优先级：高
 
 当前阶段：Phase 3
 
-在现有 Tool 接口之上实现：
+定义协议无关的内部调用结构：
 
-- 注册工具
-- 按名称查找工具
-- 拒绝重复名称
-- 通过注册表统一调用 `executeTool`
+- 调用 ID
+- 工具名称
+- 已解析或待解析的参数
+- 参数解析失败结果
 
-暂不接入模型协议，先通过注册和调用 `echo` 工具验证边界。
+先让 Registry 只接收统一结构，不直接识别任何模型厂商格式。
 
-### 2. 统一模型 Tool Call 数据结构
+### 2. 映射三种模型 Tool Call 协议
 
 优先级：中
 
-注册表稳定后，定义内部 `id + name + arguments` 调用结构，再分别适配 OpenAI Responses、OpenAI Completions 和 Anthropic Messages。暂不在协议适配稳定前实现多步 Agent Loop。
+内部结构稳定后，再分别解析 OpenAI Responses、OpenAI Completions 和 Anthropic Messages 的调用请求，并把统一 ToolResult 转回对应协议。暂不在协议适配稳定前实现多步 Agent Loop。
 
 ## 最近完成
+
+### 实现最小工具注册表
+
+状态：已完成
+
+完成内容：
+
+- 新增 `src/tools/registry.js`
+- 支持初始化注册、运行时注册、按名称查找和按注册顺序列举
+- 重复工具名称在注册阶段直接拒绝
+- 支持通过注册表按名称执行工具并透传可信 `context`
+- 未知工具统一返回 `TOOL_NOT_FOUND` ToolResult
+- 新增 `tests/tool-registry.test.js`，自动化测试由 39 个增加到 45 个
 
 ### 定义最小 Tool 接口
 

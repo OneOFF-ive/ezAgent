@@ -156,6 +156,7 @@ ezAgent/
 │   │   ├── builtins/
 │   │   │   └── echo.js
 │   │   ├── README.md
+│   │   ├── registry.js
 │   │   └── tool.js
 ├── test-support/
 │   └── temp-dir.js
@@ -169,6 +170,7 @@ ezAgent/
     ├── README.md
     ├── session-store.test.js
     ├── token-estimator.test.js
+    ├── tool-registry.test.js
     └── tool.test.js
 ```
 
@@ -239,7 +241,7 @@ ezAgent/
 - `src/agent/`
   Agent 核心层，目前包含系统提示词、短期 memory、Token 估算、AI 上下文压缩和会话持久化模块
 - `src/tools/`
-  Tool 层，当前包含基础接口、参数校验、统一结果和无副作用的本地 `echo` 工具；尚未接入模型 Tool Call
+  Tool 层，当前包含基础接口、参数校验、统一结果、工具注册表和无副作用的本地 `echo` 工具；尚未接入模型 Tool Call
 - `docs/`
   项目过程文档
 - `tests/`

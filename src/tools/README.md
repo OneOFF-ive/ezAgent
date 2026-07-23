@@ -6,6 +6,8 @@
 
 - `tool.js`
   定义 Tool、参数校验、统一执行入口和接近 MCP 的 ToolResult 结构。
+- `registry.js`
+  提供注册、查找、列举和按名称执行工具的最小注册表。
 - `builtins/echo.js`
   无副作用的回显工具，用于验证最小本地 Tool 流程。
 
@@ -23,4 +25,4 @@ Tool 定义包含：
 - `isError`
 - `_meta`（可选）
 
-当前参数校验只实现顶层对象、必填字段、基础类型和额外字段限制，不等同于完整 JSON Schema 实现。工具注册表、模型协议映射和 Agent Loop 将在后续小步接入。
+注册表使用工具名称作为唯一键，重复注册会直接失败；运行时调用未知工具则返回 `TOOL_NOT_FOUND` ToolResult。当前参数校验只实现顶层对象、必填字段、基础类型和额外字段限制，不等同于完整 JSON Schema 实现。模型协议映射和 Agent Loop 将在后续小步接入。
