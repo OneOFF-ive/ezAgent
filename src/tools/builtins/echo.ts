@@ -1,6 +1,14 @@
-import { createTextToolResult, createTool } from '../tool.js';
+import { createTextToolResult, createTool } from '../tool.ts';
 
-export const echoTool = createTool({
+type EchoArguments = {
+  text: string;
+};
+
+type EchoResult = {
+  text: string;
+};
+
+export const echoTool = createTool<EchoArguments, EchoResult>({
   name: 'echo',
   description: 'Return the provided text unchanged. Useful for verifying the local Tool flow.',
   inputSchema: {

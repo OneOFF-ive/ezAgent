@@ -2,7 +2,7 @@
 
 ## 项目定位
 
-这是一个面向学习和实践的 Node.js AI Agent 项目。
+这是一个面向学习和实践的 Node.js AI Agent 项目，正在采用 JavaScript / TypeScript 共存方式渐进迁移 TypeScript。
 
 当前重点不是一次性实现完整 Agent，而是通过可运行的小步迭代，逐步搭建：
 
@@ -97,7 +97,7 @@
 
 当前状态：
 
-- 已定义最小 Tool 接口和接近 MCP 的 ToolResult 结构
+- 已使用 TypeScript 定义最小 Tool 接口、泛型参数和接近 MCP 的 ToolResult 结构
 - 已支持基础参数校验和统一异步执行入口
 - 已提供无副作用的本地 `echo` 和 `get-system-time` 工具
 - 已支持工具注册、查找、列举、重复名称拒绝和按名称执行
@@ -105,10 +105,10 @@
 
 当前文件：
 
-- `src/tools/tool.js`
-- `src/tools/registry.js`
-- `src/tools/builtins/echo.js`
-- `src/tools/builtins/get-system-time.js`
+- `src/tools/tool.ts`
+- `src/tools/registry.ts`
+- `src/tools/builtins/echo.ts`
+- `src/tools/builtins/get-system-time.ts`
 - `src/tools/README.md`
 
 ## 当前已完成能力
@@ -165,6 +165,15 @@
 - 已支持达到 Token 阈值后通过 AI 摘要压缩较早上下文
 - 已支持本地会话保存、恢复和自动保存
 
+### 工程配置
+
+- 已引入 TypeScript 编译器和与 Node 24 匹配的类型定义
+- 已提供 `tsconfig.json`，允许 JavaScript / TypeScript 共存
+- 新增或迁移的 TypeScript 文件启用严格类型检查
+- `npm run check` 和 `npm run validate` 已包含 `typecheck`
+- Tool 层已迁移到 TypeScript，并由 Node 24 原生类型擦除执行
+- CLI、LLM 和 Agent 层暂时仍为 JavaScript
+
 ### 阶段进度
 
 - Phase 0 已完成
@@ -172,7 +181,8 @@
 - Phase 2 与 M2 已完成，memory、上下文压缩和 session 持久化关键边界已有自动化测试
 - LLM 请求稳定性补强已完成
 - 配置、三种协议和规范 CLI 命令分发测试已补齐
-- Phase 3 已开始，最小 Tool 接口与本地注册表已完成，当前重点是统一模型 Tool Call 数据结构
+- Phase 3 已开始，最小 Tool 接口与本地注册表已完成
+- TypeScript 渐进迁移基础设施与 Tool 层迁移已完成，当前重点是统一模型 Tool Call 数据结构
 
 ## 推荐开发原则
 
@@ -280,6 +290,7 @@
 - 目前核心能力仍聚焦在 CLI 与 LLM 接入层
 - `src/agent/` 目前已有 prompts、memory、token-estimator、context-compressor、session-store 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
 - `src/tools/` 已有最小 Tool 接口、参数校验、统一结果、注册表和本地 `echo`、`get-system-time` 工具，尚未接入模型工具调用
+- Tool 层已使用严格 TypeScript，其他正式源码仍为 JavaScript
 - 已使用 Node.js 内置 `node:test` 覆盖 memory、上下文压缩、Token 估算、session-store、LLM Client、模型配置、协议、CLI 命令分发、基础 Tool 执行、内置时间工具与工具注册表
 - 还没有实现模型 Tool Call 归一化、协议映射和任务循环
 

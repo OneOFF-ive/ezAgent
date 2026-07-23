@@ -1,6 +1,15 @@
-import { createTextToolResult, createTool } from '../tool.js';
+import { createTextToolResult, createTool } from '../tool.ts';
 
-export const getSystemTimeTool = createTool({
+type NoArguments = Record<string, never>;
+
+type SystemTimeResult = {
+  localTime: string;
+  isoTime: string;
+  timestamp: number;
+  timeZone: string;
+};
+
+export const getSystemTimeTool = createTool<NoArguments, SystemTimeResult>({
   name: 'get-system-time',
   description: '获取运行 EZAgent 的主机当前系统时间和时区，无需参数。',
   inputSchema: {

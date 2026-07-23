@@ -47,13 +47,39 @@
 
 ## 最近完成
 
+### 将 Tool 层迁移到 TypeScript
+
+状态：已完成
+
+完成内容：
+
+- `tool.js`、`registry.js` 和两个内置工具迁移为 `.ts`
+- 为 Tool 参数、结构化结果和执行 context 增加泛型与明确类型
+- 保留 `inputSchema` 运行时校验，TypeScript 不替代模型输入校验
+- 配置 TypeScript ESLint，并限制为 Node 24 可原生擦除的类型语法
+- 现有 JavaScript 测试直接导入 `.ts`，无需额外运行器或构建产物
+- 自动化测试行为和数量保持不变
+
+### 引入 TypeScript 渐进迁移基础设施
+
+状态：已完成
+
+完成内容：
+
+- 安装 TypeScript 和与 Node 24 匹配的 `@types/node`
+- 新增 `tsconfig.json`，启用严格模式并允许 JavaScript / TypeScript 共存
+- 当前不检查旧 JavaScript 内部类型，也不生成构建产物
+- 新增 `npm run typecheck`
+- `npm run check` 和 `npm run validate` 已包含类型检查
+- 现有 CLI 启动和测试方式保持不变
+
 ### 实现最小工具注册表
 
 状态：已完成
 
 完成内容：
 
-- 新增 `src/tools/registry.js`
+- 新增 `src/tools/registry.ts`
 - 支持初始化注册、运行时注册、按名称查找和按注册顺序列举
 - 重复工具名称在注册阶段直接拒绝
 - 支持通过注册表按名称执行工具并透传可信 `context`
@@ -66,10 +92,10 @@
 
 完成内容：
 
-- 新增 `src/tools/tool.js`，定义 Tool、基础参数校验和统一异步执行入口
+- 新增 `src/tools/tool.ts`，定义 Tool、基础参数校验和统一异步执行入口
 - ToolResult 使用接近 MCP 的 `content`、`structuredContent`、`isError` 和 `_meta`
 - 参数错误和执行异常统一转换为模型可观察的失败结果
-- 新增无副作用的 `src/tools/builtins/echo.js`
+- 新增无副作用的 `src/tools/builtins/echo.ts`
 - 新增 `tests/tool.test.js`，自动化测试由 34 个增加到 39 个
 
 ### 补充配置、协议与 CLI 测试

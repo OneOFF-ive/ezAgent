@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { getSystemTimeTool } from '../src/tools/builtins/get-system-time.js';
-import { executeTool } from '../src/tools/tool.js';
+import { getSystemTimeTool } from '../src/tools/builtins/get-system-time.ts';
+import { executeTool } from '../src/tools/tool.ts';
 
 test('returns the current system time in display and structured formats', async () => {
   const beforeExecution = Date.now();

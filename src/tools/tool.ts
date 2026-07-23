@@ -1,5 +1,82 @@
+export type JsonObject = Record<string, unknown>;
+
+export type ToolParameterType =
+  | 'string'
+  | 'number'
+  | 'integer'
+  | 'boolean'
+  | 'object'
+  | 'array'
+  | 'null';
+
+export interface ToolPropertySchema {
+  type: ToolParameterType;
+  description?: string;
+}
+
+export interface ToolInputSchema {
+  type: 'object';
+  properties?: Record<string, ToolPropertySchema>;
+  required?: string[];
+  additionalProperties?: boolean;
+}
+
+export interface ToolContentBlock {
+  type: string;
+  text?: string;
+  [key: string]: unknown;
+}
+
+export interface ToolResult<StructuredContent extends JsonObject = JsonObject> {
+  content: ToolContentBlock[];
+  structuredContent?: StructuredContent;
+  isError?: boolean;
+  _meta?: JsonObject;
+}
+
+export interface ToolExecutionContext {
+  requestId?: string;
+  sessionId?: string;
+  signal?: AbortSignal;
+  workingDirectory?: string;
+  permissions?: JsonObject;
+  services?: JsonObject;
+  logger?: {
+    info?: (...args: unknown[]) => void;
+    error?: (...args: unknown[]) => void;
+  };
+  [key: string]: unknown;
+}
+
+export interface Tool<
+  Args extends JsonObject = JsonObject,
+  StructuredContent extends JsonObject = JsonObject,
+  Context extends ToolExecutionContext = ToolExecutionContext,
+> {
+  name: string;
+  description: string;
+  inputSchema: ToolInputSchema;
+  execute(
+    args: Args,
+    context: Context,
+  ): ToolResult<StructuredContent> | Promise<ToolResult<StructuredContent>>;
+}
+
+export type ToolValidationErrorCode = 'REQUIRED' | 'INVALID_TYPE' | 'UNEXPECTED_PROPERTY';
+
+export interface ToolValidationError {
+  path: string;
+  code: ToolValidationErrorCode;
+  message: string;
+}
+
+export interface ToolValidationResult {
+  valid: boolean;
+  errors: ToolValidationError[];
+}
+
 const TOOL_NAME_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
-const SUPPORTED_PARAMETER_TYPES = new Set([
+const SUPPORTED_PARAMETER_TYPES = new Set<ToolParameterType>([
   'string',
   'number',
   'integer',
@@ -9,11 +86,11 @@ const SUPPORTED_PARAMETER_TYPES = new Set([
   'null',
 ]);
 
-function isPlainObject(value) {
+function isPlainObject(value: unknown): value is JsonObject {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-function getValueType(value) {
+function getValueType(value: unknown): string {
   if (value === null) {
     return 'null';
   }
@@ -29,7 +106,7 @@ function getValueType(value) {
   return typeof value;
 }
 
-function matchesType(value, expectedType) {
+function matchesType(value: unknown, expectedType: ToolParameterType): boolean {
   if (expectedType === 'number') {
     return typeof value === 'number' && Number.isFinite(value);
   }
@@ -53,7 +130,7 @@ function matchesType(value, expectedType) {
   return typeof value === expectedType;
 }
 
-function validateInputSchema(inputSchema) {
+function validateInputSchema(inputSchema: unknown): asserts inputSchema is ToolInputSchema {
   if (!isPlainObject(inputSchema) || inputSchema.type !== 'object') {
     throw new TypeError('Tool inputSchema must be an object schema.');
   }
@@ -74,13 +151,18 @@ function validateInputSchema(inputSchema) {
       throw new TypeError(`Tool parameter schema for "${name}" must be an object.`);
     }
 
-    if (!SUPPORTED_PARAMETER_TYPES.has(propertySchema.type)) {
+    if (
+      typeof propertySchema.type !== 'string' ||
+      !SUPPORTED_PARAMETER_TYPES.has(propertySchema.type as ToolParameterType)
+    ) {
       throw new TypeError(`Tool parameter "${name}" has an unsupported type.`);
     }
   }
 }
 
-function validateToolResult(result) {
+function validateToolResult<StructuredContent extends JsonObject = JsonObject>(
+  result: unknown,
+): asserts result is ToolResult<StructuredContent> {
   if (!isPlainObject(result) || !Array.isArray(result.content)) {
     throw new TypeError('Tool execute() must return a ToolResult with a content array.');
   }
@@ -108,7 +190,15 @@ function validateToolResult(result) {
   }
 }
 
-export function createTool({ name, description, inputSchema, execute }) {
+export function createTool<
+  Args extends JsonObject = JsonObject,
+  StructuredContent extends JsonObject = JsonObject,
+  Context extends ToolExecutionContext = ToolExecutionContext,
+>(
+  definition: Tool<Args, StructuredContent, Context>,
+): Readonly<Tool<Args, StructuredContent, Context>> {
+  const { name, description, inputSchema, execute } = definition;
+
   if (typeof name !== 'string' || !TOOL_NAME_PATTERN.test(name)) {
     throw new TypeError('Tool name must contain 1-64 letters, numbers, underscores, or hyphens.');
   }
@@ -123,11 +213,26 @@ export function createTool({ name, description, inputSchema, execute }) {
     throw new TypeError('Tool execute must be a function.');
   }
 
-  return Object.freeze({ name, description, inputSchema, execute });
+  return Object.freeze(definition);
 }
 
-export function createToolResult({ content, structuredContent, isError = false, _meta } = {}) {
-  const result = { content, isError };
+interface CreateToolResultOptions<StructuredContent extends JsonObject> {
+  content?: ToolContentBlock[];
+  structuredContent?: StructuredContent;
+  isError?: boolean;
+  _meta?: JsonObject;
+}
+
+export function createToolResult<StructuredContent extends JsonObject = JsonObject>({
+  content,
+  structuredContent,
+  isError = false,
+  _meta,
+}: CreateToolResultOptions<StructuredContent> = {}): ToolResult<StructuredContent> {
+  const result: CreateToolResultOptions<StructuredContent> & { isError: boolean } = {
+    content,
+    isError,
+  };
 
   if (structuredContent !== undefined) {
     result.structuredContent = structuredContent;
@@ -137,11 +242,19 @@ export function createToolResult({ content, structuredContent, isError = false, 
     result._meta = _meta;
   }
 
-  validateToolResult(result);
+  validateToolResult<StructuredContent>(result);
   return result;
 }
 
-export function createTextToolResult(text, { structuredContent, _meta } = {}) {
+interface CreateTextToolResultOptions<StructuredContent extends JsonObject> {
+  structuredContent?: StructuredContent;
+  _meta?: JsonObject;
+}
+
+export function createTextToolResult<StructuredContent extends JsonObject = JsonObject>(
+  text: string,
+  { structuredContent, _meta }: CreateTextToolResultOptions<StructuredContent> = {},
+): ToolResult<StructuredContent> {
   return createToolResult({
     content: [{ type: 'text', text }],
     structuredContent,
@@ -149,7 +262,16 @@ export function createTextToolResult(text, { structuredContent, _meta } = {}) {
   });
 }
 
-export function createToolErrorResult(code, message, { details, retryable = false } = {}) {
+interface CreateToolErrorResultOptions {
+  details?: unknown;
+  retryable?: boolean;
+}
+
+export function createToolErrorResult<StructuredContent extends JsonObject = JsonObject>(
+  code: string,
+  message: string,
+  { details, retryable = false }: CreateToolErrorResultOptions = {},
+): ToolResult<StructuredContent> {
   return createToolResult({
     content: [{ type: 'text', text: message }],
     isError: true,
@@ -163,7 +285,10 @@ export function createToolErrorResult(code, message, { details, retryable = fals
   });
 }
 
-export function validateToolArguments(tool, args) {
+export function validateToolArguments(
+  tool: Pick<Tool, 'inputSchema'>,
+  args: unknown,
+): ToolValidationResult {
   if (!isPlainObject(tool) || !isPlainObject(tool.inputSchema)) {
     throw new TypeError('A valid Tool is required.');
   }
@@ -182,7 +307,7 @@ export function validateToolArguments(tool, args) {
   }
 
   const { properties = {}, required = [], additionalProperties = true } = tool.inputSchema;
-  const errors = [];
+  const errors: ToolValidationError[] = [];
 
   for (const name of required) {
     if (!Object.hasOwn(args, name)) {
@@ -220,22 +345,35 @@ export function validateToolArguments(tool, args) {
   return { valid: errors.length === 0, errors };
 }
 
-export async function executeTool(tool, args, context = {}) {
+export async function executeTool<
+  Args extends JsonObject = JsonObject,
+  StructuredContent extends JsonObject = JsonObject,
+  Context extends ToolExecutionContext = ToolExecutionContext,
+>(
+  tool: Tool<Args, StructuredContent, Context>,
+  args: unknown,
+  context: Context = {} as Context,
+): Promise<ToolResult<StructuredContent>> {
   const validation = validateToolArguments(tool, args);
 
   if (!validation.valid) {
-    return createToolErrorResult('INVALID_ARGUMENTS', 'Tool arguments failed validation.', {
-      details: validation.errors,
-    });
+    return createToolErrorResult<StructuredContent>(
+      'INVALID_ARGUMENTS',
+      'Tool arguments failed validation.',
+      {
+        details: validation.errors,
+      },
+    );
   }
 
   try {
-    const result = await tool.execute(args, context);
-    validateToolResult(result);
+    // 模型参数先经过运行时 Schema 校验，再收窄为工具声明的静态参数类型。
+    const result = await tool.execute(args as Args, context);
+    validateToolResult<StructuredContent>(result);
     return result;
   } catch (error) {
     // 执行错误转换为模型可见的结果，使后续 Agent Loop 有机会修正参数或结束任务。
-    return createToolErrorResult(
+    return createToolErrorResult<StructuredContent>(
       'TOOL_EXECUTION_ERROR',
       error instanceof Error ? error.message : 'Tool execution failed.',
     );

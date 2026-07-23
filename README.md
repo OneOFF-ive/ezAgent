@@ -11,7 +11,7 @@
 
 ## 当前特性
 
-- 基于 Node.js 与 ESM
+- 基于 Node.js 与 ESM，已开始渐进迁移 TypeScript
 - 命令行交互式 CLI
 - 启动时支持创建新对话或选择已有会话继续
 - 支持多轮上下文对话
@@ -84,6 +84,31 @@ CLI 启动后常用命令：
 npm run validate
 ```
 
+### TypeScript 渐进迁移
+
+项目已经引入 TypeScript 编译器和与 Node 24 匹配的类型定义。CLI、LLM 和 Agent 层仍保持 JavaScript，Tool 层已经迁移为 TypeScript。
+
+当前 `tsconfig.json` 采用：
+
+- `strict: true`
+  后续新增或迁移的 `.ts` 文件启用严格类型检查。
+- `allowJs: true`
+  迁移期间允许 `.js` 与 `.ts` 文件共存。
+- `checkJs: false`
+  暂不一次性检查全部旧 JavaScript，避免把迁移变成无边界重构。
+- `noEmit: true`
+  当前阶段只做类型检查，不生成构建产物。
+- `erasableSyntaxOnly: true`
+  Tool 层只使用 Node 24 能原生擦除的 TypeScript 语法。
+
+单独运行类型检查：
+
+```bash
+npm run typecheck
+```
+
+`npm run check` 和 `npm run validate` 已包含类型检查。Node 24 可以直接加载 Tool 层的 `.ts` 文件，因此现有测试不需要额外运行器或构建产物。下一步统一模型 Tool Call 数据结构，再逐步迁移 LLM、Agent 和 CLI。
+
 ### 上下文压缩配置
 
 AI 上下文压缩默认开启，并复用当前激活模型及其 API 配置：
@@ -116,6 +141,9 @@ AI 上下文压缩默认开启，并复用当前激活模型及其 API 配置：
 ezAgent/
 ├── README.md
 ├── AGENTS.md
+├── package.json
+├── package-lock.json
+├── tsconfig.json
 ├── .env
 ├── .env.example
 ├── agent.example.json
@@ -154,11 +182,11 @@ ezAgent/
 │   │   └── request-config.js
 │   ├── tools/
 │   │   ├── builtins/
-│   │   │   ├── echo.js
-│   │   │   └── get-system-time.js
+│   │   │   ├── echo.ts
+│   │   │   └── get-system-time.ts
 │   │   ├── README.md
-│   │   ├── registry.js
-│   │   └── tool.js
+│   │   ├── registry.ts
+│   │   └── tool.ts
 ├── test-support/
 │   └── temp-dir.js
 └── tests/
@@ -184,6 +212,10 @@ ezAgent/
   项目总说明、使用方式、目录概览
 - `AGENTS.md`
   Agent 架构说明、模块边界、后续实现约束
+- `package.json`
+  项目依赖与开发脚本
+- `tsconfig.json`
+  JavaScript / TypeScript 渐进迁移和严格类型检查配置
 - `.env`
   系统级配置
 - `.env.example`
@@ -259,12 +291,14 @@ ezAgent/
   执行 ESLint
 - `npm run lint:fix`
   自动修复可修复的 ESLint 问题
+- `npm run typecheck`
+  使用 TypeScript 检查 `.ts` 文件和模块解析
 - `npm run format`
   执行 Prettier 格式化
 - `npm run format:check`
   检查代码格式
 - `npm run check`
-  运行 `lint + format:check`
+  运行 `lint + typecheck + format:check`
 - `npm run validate`
   运行代码检查和自动化测试的一键自检入口
 

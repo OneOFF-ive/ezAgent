@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { echoTool } from '../src/tools/builtins/echo.js';
-import { createToolRegistry } from '../src/tools/registry.js';
-import { createTextToolResult, createTool } from '../src/tools/tool.js';
+import { echoTool } from '../src/tools/builtins/echo.ts';
+import { createToolRegistry } from '../src/tools/registry.ts';
+import { createTextToolResult, createTool } from '../src/tools/tool.ts';
 
 test('registers, finds, and lists tools in registration order', () => {
   const secondTool = createTool({

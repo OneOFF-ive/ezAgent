@@ -4,13 +4,13 @@
 
 当前文件：
 
-- `tool.js`
+- `tool.ts`
   定义 Tool、参数校验、统一执行入口和接近 MCP 的 ToolResult 结构。
-- `registry.js`
+- `registry.ts`
   提供注册、查找、列举和按名称执行工具的最小注册表。
-- `builtins/echo.js`
+- `builtins/echo.ts`
   无副作用的回显工具，用于验证最小本地 Tool 流程。
-- `builtins/get-system-time.js`
+- `builtins/get-system-time.ts`
   返回主机本地时间、ISO 时间、时间戳和系统时区。
 
 ## Tool 定义
@@ -25,6 +25,24 @@ const tool = createTool({
   execute,
 });
 ```
+
+TypeScript 工具可以通过泛型关联参数和结构化结果：
+
+```ts
+type Arguments = {
+  text: string;
+};
+
+type Result = {
+  text: string;
+};
+
+const tool = createTool<Arguments, Result>({
+  // ...
+});
+```
+
+第一个泛型对应 `execute()` 的 `args`，第二个泛型对应 ToolResult 的 `structuredContent`。模型输入仍然必须经过 `inputSchema` 运行时校验。
 
 字段说明：
 
@@ -450,10 +468,18 @@ const result = await registry.execute('echo', {
 
 ## 完整示例
 
-```js
-import { createTextToolResult, createTool } from '../tool.js';
+```ts
+import { createTextToolResult, createTool } from '../tool.ts';
 
-export const echoTool = createTool({
+type EchoArguments = {
+  text: string;
+};
+
+type EchoResult = {
+  text: string;
+};
+
+export const echoTool = createTool<EchoArguments, EchoResult>({
   name: 'echo',
   description: '原样返回输入文本，用于验证本地 Tool 执行流程。',
   inputSchema: {

@@ -136,13 +136,15 @@
 
 当前重点：
 
-- 统一模型 Tool Call 数据结构，暂不接入 Agent Loop
+- 统一模型 Tool Call 数据结构；暂不接入 Agent Loop
 
 计划内容：
 
 - 定义 Tool 接口、参数校验和统一结果（已完成）
 - 实现本地工具注册机制（已完成）
 - 接入简单内置工具（已完成 `echo` 和 `get-system-time` 工具）
+- 引入 TypeScript 渐进迁移基础设施（已完成）
+- 将 Tool 层迁移到 TypeScript（已完成）
 - 打通 tool call 执行循环
 
 ### Phase 4: Agent Loop 与任务执行
@@ -167,6 +169,8 @@
 - 代理 dispatcher 复用
 - LLM Client 关键重试行为测试
 - LLM 配置、三种协议和 CLI 命令分发测试
+- TypeScript 编译器、Node 类型定义和 `typecheck` 检查入口
+- Tool 层严格 TypeScript 类型与 TypeScript ESLint
 
 计划内容：
 

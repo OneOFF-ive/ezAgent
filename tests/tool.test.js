@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { echoTool } from '../src/tools/builtins/echo.js';
+import { echoTool } from '../src/tools/builtins/echo.ts';
 import {
   createTextToolResult,
   createTool,
   executeTool,
   validateToolArguments,
-} from '../src/tools/tool.js';
+} from '../src/tools/tool.ts';
 
 test('creates and executes an asynchronous local tool', async () => {
   const result = await executeTool(echoTool, { text: 'hello tool' });
