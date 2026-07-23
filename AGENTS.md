@@ -99,7 +99,7 @@
 
 - 已定义最小 Tool 接口和接近 MCP 的 ToolResult 结构
 - 已支持基础参数校验和统一异步执行入口
-- 已提供无副作用的本地 `echo` 工具
+- 已提供无副作用的本地 `echo` 和 `get-system-time` 工具
 - 已支持工具注册、查找、列举、重复名称拒绝和按名称执行
 - 模型 Tool Call 归一化、协议映射和 Agent Loop 尚未实现
 
@@ -108,6 +108,7 @@
 - `src/tools/tool.js`
 - `src/tools/registry.js`
 - `src/tools/builtins/echo.js`
+- `src/tools/builtins/get-system-time.js`
 - `src/tools/README.md`
 
 ## 当前已完成能力
@@ -278,8 +279,8 @@
 
 - 目前核心能力仍聚焦在 CLI 与 LLM 接入层
 - `src/agent/` 目前已有 prompts、memory、token-estimator、context-compressor、session-store 和自定义 prompt 加载能力，core / loop 仍是后续阶段能力
-- `src/tools/` 已有最小 Tool 接口、参数校验、统一结果、注册表和本地 `echo` 工具，尚未接入模型工具调用
-- 已使用 Node.js 内置 `node:test` 覆盖 memory、上下文压缩、Token 估算、session-store、LLM Client、模型配置、协议、CLI 命令分发、基础 Tool 执行与工具注册表
+- `src/tools/` 已有最小 Tool 接口、参数校验、统一结果、注册表和本地 `echo`、`get-system-time` 工具，尚未接入模型工具调用
+- 已使用 Node.js 内置 `node:test` 覆盖 memory、上下文压缩、Token 估算、session-store、LLM Client、模型配置、协议、CLI 命令分发、基础 Tool 执行、内置时间工具与工具注册表
 - 还没有实现模型 Tool Call 归一化、协议映射和任务循环
 
 ## 文档使用方式
